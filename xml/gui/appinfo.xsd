@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Application Information Format XML Schema
+    Copyright (C) 2005-2011 Martin Koegler mkoegler@auto.tuwien.ac.at
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    Modified version of this specification must change the namespace.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+-->
+<!-- version 0.0.0 -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.auto.tuwien.ac.at/~mkoegler/eib/xml/appinfo.xsd" targetNamespace="http://www.auto.tuwien.ac.at/~mkoegler/eib/xml/appinfo.xsd" elementFormDefault="qualified">
+  <xs:simpleType name="MaskVersion">
+    <xs:restriction base="xs:hexBinary">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="4"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="DPType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]+\.[0-9]{3}"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Version">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]+\.[0-9]+\.[0-9]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="Expression">
+    <xs:restriction base="xs:string">
+<!--*-->
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="ProfileID">
+    <xs:restriction base="xs:nonNegativeInteger">
+<!--*-->
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="GroupType">
+    <xs:restriction base="xs:nonNegativeInteger">
+<!--*-->
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="PropertyType">
+    <xs:restriction base="xs:nonNegativeInteger">
+<!--*-->
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="PID">
+    <xs:restriction base="xs:ID">
+<!--*xs:string/xs:ID?-->
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="RID">
+    <xs:restriction base="xs:IDREF">
+<!--*xs:string/xs:IDREF?-->
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="DeviceDesc">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="ProgramID" type="xs:string"/>
+        <xs:element name="Description">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="MaskVersion" type="MaskVersion"/>
+              <xs:element name="Title" type="xs:string"/>
+              <xs:element name="AddInfo" type="xs:string" minOccurs="0"/>
+              <xs:element name="OrderNo" type="xs:string" minOccurs="0"/>
+              <xs:element name="Manufacturer" type="xs:string" minOccurs="0"/>
+              <xs:element name="Category" type="xs:string" minOccurs="0"/>
+              <xs:element name="Author" type="xs:string" minOccurs="0"/>
+              <xs:element name="Copyright" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="FunctionalBlock" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="ProfileID" type="ProfileID"/>
+              <xs:element name="Title" type="xs:string"/>
+              <xs:element name="AddInfo" type="xs:string" minOccurs="0"/>
+              <xs:element name="Interface" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="DPType" type="DPType"/>
+                    <xs:element name="Abbreviation" type="xs:string"/>
+                    <xs:element name="Title" type="xs:string" minOccurs="0"/>
+                    <xs:element name="AddInfo" type="xs:string" minOccurs="0"/>
+                    <xs:element name="GroupTitle" type="xs:string" minOccurs="0"/>
+                    <xs:element name="InvisibleIf" type="Expression" minOccurs="0"/>
+                    <xs:element name="Reference" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:attribute name="idref" type="RID"/>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute name="id" type="PID"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="id" type="PID"/>
+          </xs:complexType>
+          <xs:key name="uniqif">
+            <xs:selector xpath="Interface"/>
+            <xs:field xpath="@id"/>
+          </xs:key>
+        </xs:element>
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+          <xs:element name="GroupObject">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Title" type="xs:string"/>
+                <xs:element name="AddInfo" type="xs:string" minOccurs="0"/>
+                <xs:element name="GroupType" type="GroupType"/>
+                <xs:element name="Sending" type="xs:boolean"/>
+                <xs:element name="Receiving" type="xs:boolean"/>
+                <xs:element name="Reading" type="xs:boolean"/>
+                <xs:element name="StateBased" type="xs:boolean"/>
+              </xs:sequence>
+              <xs:attribute name="id" type="PID"/>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Property">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Title" type="xs:string"/>
+                <xs:element name="AddInfo" type="xs:string" minOccurs="0"/>
+                <xs:element name="PropertyType" type="PropertyType"/>
+                <xs:element name="ObjectIndex" type="xs:nonNegativeInteger"/>
+                <xs:element name="PropertyId" type="xs:nonNegativeInteger"/>
+                <xs:element name="Writeable" type="xs:boolean"/>
+                <xs:element name="MaxArrayLength" type="xs:positiveInteger"/>
+              </xs:sequence>
+              <xs:attribute name="id" type="PID"/>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="PollingMaster">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Title" type="xs:string"/>
+                <xs:element name="AddInfo" type="xs:string" minOccurs="0"/>
+              </xs:sequence>
+              <xs:attribute name="id" type="PID"/>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="PollingSlave">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Title" type="xs:string"/>
+                <xs:element name="AddInfo" type="xs:string" minOccurs="0"/>
+              </xs:sequence>
+              <xs:attribute name="id" type="PID"/>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+        <xs:element name="Parameter" minOccurs="0">
+          <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+              <xs:element name="ListParameter">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Title" type="xs:string"/>
+                    <xs:element name="AddInfo" type="xs:string" minOccurs="0"/>
+                    <xs:element name="ListDefault">
+                      <xs:complexType>
+                        <xs:attribute name="idref" type="RID"/>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="ListElement" maxOccurs="unbounded">
+                      <xs:complexType>
+                        <xs:simpleContent>
+                          <xs:extension base="xs:string">
+                            <xs:attribute name="id" type="PID"/>
+                          </xs:extension>
+                        </xs:simpleContent>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="Unit" type="xs:string" minOccurs="0"/>
+                  </xs:sequence>
+                  <xs:attribute name="id" type="PID"/>
+                </xs:complexType>
+                <xs:key name="uniqlistkey">
+                  <xs:selector xpath="ListElement"/>
+                  <xs:field xpath="@id"/>
+                </xs:key>
+                <xs:keyref name="reflistkey" refer="uniqlistkey">
+                  <xs:selector xpath="ListDefault"/>
+                  <xs:field xpath="@idref"/>
+                </xs:keyref>
+              </xs:element>
+              <xs:element name="IntParameter">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Title" type="xs:string"/>
+                    <xs:element name="AddInfo" type="xs:string" minOccurs="0"/>
+                    <xs:element name="MinValue" type="xs:integer"/>
+                    <xs:element name="MaxValue" type="xs:integer"/>
+                    <xs:element name="Default" type="xs:integer"/>
+                    <xs:element name="Unit" type="xs:string" minOccurs="0"/>
+                    <xs:element name="Precision" type="xs:integer" minOccurs="0"/>
+                    <xs:element name="Increment" type="xs:integer" minOccurs="0"/>
+                  </xs:sequence>
+                  <xs:attribute name="id" type="PID"/>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="FloatParameter">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Title" type="xs:string"/>
+                    <xs:element name="AddInfo" type="xs:string" minOccurs="0"/>
+                    <xs:element name="MinValue" type="xs:decimal"/>
+                    <xs:element name="MaxValue" type="xs:decimal"/>
+                    <xs:element name="Default" type="xs:decimal"/>
+                    <xs:element name="Unit" type="xs:string" minOccurs="0"/>
+                    <xs:element name="Precision" type="xs:decimal" minOccurs="0"/>
+                    <xs:element name="Increment" type="xs:decimal" minOccurs="0"/>
+                  </xs:sequence>
+                  <xs:attribute name="id" type="PID"/>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="StringParameter">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Title" type="xs:string"/>
+                    <xs:element name="AddInfo" type="xs:string" minOccurs="0"/>
+                    <xs:element name="Default" type="xs:string"/>
+                    <xs:element name="RegExp" type="xs:string" minOccurs="0"/>
+                    <xs:element name="MaxLength" type="xs:positiveInteger"/>
+                    <xs:element name="Unit" type="xs:string" minOccurs="0"/>
+                  </xs:sequence>
+                  <xs:attribute name="id" type="PID"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="version" type="Version"/>
+    </xs:complexType>
+    <xs:key name="uniqpar">
+      <xs:selector xpath="Parameter/ListParameter|Parameter/IntParameter|Parameter/FloatParameter|Parameter/StringParameter|Property|GroupObject|PollingSlave|PollingMaster"/>
+      <xs:field xpath="@id"/>
+    </xs:key>
+    <xs:keyref name="refpar" refer="uniqpar">
+      <xs:selector xpath="FunctionalBlock/Interface/Reference"/>
+      <xs:field xpath="@idref"/>
+    </xs:keyref>
+    <xs:key name="uniqfb">
+      <xs:selector xpath="FunctionalBlock"/>
+      <xs:field xpath="@id"/>
+    </xs:key>
+  </xs:element>
+</xs:schema>

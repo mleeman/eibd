@@ -1,0 +1,117 @@
+/*
+    BCU SDK bcu development enviroment
+    Copyright (C) 2005-2011 Martin Koegler <mkoegler@auto.tuwien.ac.at>
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
+OBJECT(Device)
+
+#if !(defined(PARSER_GEN)&& defined(READ_INPUT))
+ATTRIB_STRING(ProgramID)
+#endif
+
+ATTRIB_INT(ManufacturerCode)
+ATTRIB_INT(InternalManufacturerCode)
+ATTRIB_INT(DeviceType)
+ATTRIB_INT(Version)
+ATTRIB_INT(SyncRate)
+ATTRIB_INT(PEIType)
+ATTRIB_INT(PortADDR)
+ATTRIB_INT(PortCDDR)
+
+ATTRIB_BOOL(U_DELMSG)
+ATTRIB_INT(RouteCount)
+ATTRIB_INT(BusyLimit)
+ATTRIB_INT(INAKLimit)
+ATTRIB_INT(RateLimit)
+ATTRIB_BOOL(CPOL)
+ATTRIB_BOOL(CPHA)
+ATTRIB_BOOL(AutoPLMA)
+ATTRIB_BOOL(A_Event)
+ATTRIB_BOOL(BCU1_SEC)
+ATTRIB_BOOL(BCU1_PROTECT)
+ATTRIB_BOOL(BCU2_PROTECT)
+ATTRIB_BOOL(BCU2_WATCHDOG)
+ATTRIB_BOOL(PLM_FAST)
+
+ATTRIB_STRING_ARRAY(include)
+
+#if !defined(WRITE_OUTPUT) && !(defined(PARSER_GEN)&&defined(READ_BACK))
+ATTRIB_STRING(Title)
+ATTRIB_STRING(AddInfo)
+ATTRIB_STRING(OrderNo)
+ATTRIB_STRING(Manufacturer)
+ATTRIB_STRING(Category)
+ATTRIB_STRING(Author)
+ATTRIB_STRING(Copyright)
+ATTRIB_ARRAY_OBJECT(FunctionalBlock)
+
+ATTRIB_INT(Test_Addr_Count)
+ATTRIB_INT(Test_Assoc_Count)
+
+#endif
+
+ATTRIB_ARRAY_OBJECT(PollingMaster)
+ATTRIB_ARRAY_OBJECT(PollingSlave)
+ATTRIB_ARRAY_OBJECT(GroupObject)
+ATTRIB_ARRAY_OBJECT(Object)
+ATTRIB_ARRAY_OBJECT(ListParameter)
+ATTRIB_ARRAY_OBJECT(IntParameter)
+ATTRIB_ARRAY_OBJECT(FloatParameter)
+ATTRIB_ARRAY_OBJECT(StringParameter)
+ATTRIB_ARRAY_OBJECT(Debounce)
+ATTRIB_ARRAY_OBJECT(Timer)
+
+ATTRIB_IDENT(on_run)
+ATTRIB_IDENT(on_init)
+ATTRIB_IDENT(on_save)
+
+ATTRIB_IDENT(on_pei_init)
+ATTRIB_IDENT(on_pei_message)
+ATTRIB_IDENT(on_pei_cycle)
+ATTRIB_IDENT(on_pei_user)
+ATTRIB_IDENT(on_pei_rc_even)
+ATTRIB_IDENT(on_pei_rc_odd)
+ATTRIB_IDENT(on_pei_tc)
+ATTRIB_IDENT(on_pei_tdre)
+ATTRIB_IDENT(on_pei_sci_idle)
+ATTRIB_IDENT(on_pei_spif)
+ATTRIB_IDENT(on_pei_oca)
+ATTRIB_IDENT(on_pei_ocb)
+ATTRIB_IDENT(on_pei_ica)
+ATTRIB_IDENT(on_pei_icb)
+
+PRIVATE_VAR(Array<eibkey_t> Key)
+#if !defined(WRITE_OUTPUT) && !(defined(PARSER_GEN)&&defined(READ_BACK)) && !(defined(PARSER_GEN)&& defined(READ_INPUT))
+ATTRIB_INT(MaskVersion)
+#endif
+
+PRIVATE_VAR(int ObjCount)
+ATTRIB_ENUM(BCU,BCUType,Map_BCUType)
+ATTRIB_IDENT(Model)
+
+PRIVATE_VAR(int UserTimer)
+PRIVATE_VAR(int NextTimer)
+
+CI_OBJECT(Device)
+
+#if !defined(WRITE_OUTPUT) && !(defined(PARSER_GEN)&&defined(READ_BACK))
+ATTRIB_KEY_MAP(Keys)
+ATTRIB_INT(PhysicalAddress)
+ATTRIB_INT(InstallKey)
+#endif
+
+END_OBJECT

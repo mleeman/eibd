@@ -1,0 +1,97 @@
+%{
+/*
+    BCU SDK bcu development enviroment
+    Copyright (C) 2005-2011 Martin Koegler <mkoegler@auto.tuwien.ac.at>
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
+YYinclude "scanner.h"
+YYinclude "classes.h"
+YYinclude "parser1.1.h"
+%}
+
+%option yylineno
+%option noyywrap
+%option never-interactive
+%x comment
+
+
+%%
+
+
+[ \t\r\n]  ;
+\/\/.*  ;
+[#].*  ;
+
+
+"/*"         BEGIN(comment);
+<comment>[^*\n]*
+<comment>"*"+[^*/\n]*
+<comment>\n             ;
+<comment>"*"+"/"        BEGIN(INITIAL);
+
+";" return ';';
+":" return ':';
+"?" return '?';
+"{" return '{';
+"}" return '}';
+"," return ',';
+")" return ')';
+"(" return '(';
+"||" return T_OR;
+"&&" return T_AND;
+"|" return '|';
+"&" return '&';
+"^" return '^';
+"==" return T_EQ;
+"=" return '=';
+"!=" return T_NE;
+"<=" return T_LE;
+">=" return T_GE;
+">>" return T_RSHIFT;
+"<<" return T_LSHIFT;
+"<" return '<';
+">" return '>';
+"+" return '+';
+"-" return '-';
+"*" return '*';
+"/" return '/';
+"%" return '%';
+"~" return '~';
+"!" return '!';
+"IN" return T_IN;
+"CI" return T_CI;
+
+true return TRUE;
+false return FALSE;
+
+#include "scanner_gen.h"
+#include "Objects.lst"
+
+["]([^\\"]|[\\]["]|[\\]["]|[\\][^"])+["] yylval.str=yytext; return STRING;
+
+[$][0-9]+\.[0-9]+\.[0-9]+ { int a, b, c; sscanf (yytext+1, "%d.%d.%d", &a, &b, &c); yylval.intval=((a & 0x0f) << 12) | ((b & 0x0f) << 8) | ((c & 0xff)); return INT;}
+[$][0-9]+\/[0-9]+\/[0-9]+ { int a, b, c; sscanf (yytext+1, "%d/%d/%d", &a, &b, &c); yylval.intval=((a & 0x1f) << 11) | ((b & 0x07) << 8) | ((c & 0xff)); return INT;}
+[$][0-9]+\/[0-9]+ { int a, b; sscanf (yytext+1, "%d/%d", &a, &b); yylval.intval=((a & 0x1f) << 11) | ((b & 0x7FF)); return INT;}
+
+0x[0-9A-Fa-f]+ yylval.intval=strtol(yytext,0,16);return INT;
+[-]?[0-9]+\.[0-9]*([eE][-]?[0-9]+)? yylval.fval=strtod(yytext,0);return FLOAT;
+[-]?[0-9]*\.[0-9]+([eE][-]?[0-9]+)? yylval.fval=strtod(yytext,0);return FLOAT;
+[-]?[0-9]+ yylval.intval=strtol(yytext,0,10); return INT;
+[A-Za-z_][A-Za-z_0-9]* yylval.str=yytext; return IDENT;
+
+
+. parserError(_("unexpected Character %s"),yytext);

@@ -1,0 +1,100 @@
+/*
+    BCU SDK bcu development enviroment
+    Copyright (C) 2005-2011 Martin Koegler <mkoegler@auto.tuwien.ac.at>
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    In addition to the permissions in the GNU General Public License, 
+    you may link the compiled version of this file into combinations
+    with other programs, and distribute those combinations without any 
+    restriction coming from the use of this file. (The General Public 
+    License restrictions do apply in other respects; for example, they 
+    cover modification of the file, and distribution when not linked into 
+    a combine executable.)
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
+/* BCU 1 */
+
+SECTIONS
+{
+. = 0xCE;
+
+_bss_start = . ;
+.ram : {
+	*(.debounce)
+	*(.timerval)
+	*(.register)
+	*(.ramflags)
+	*(.ram)
+}
+.bss : { 
+	*(.bss.*)
+	 }
+_bss_end = . ;
+_bss_size = _bss_end - _bss_start ;
+
+. = 0x100;
+
+_eeprom_start = . ;
+
+.text : { 
+	_text_start = . ;
+	*(.bcuconfig)
+	*(.addrtab)
+	*(.assoctab)
+	*(.commobjs)
+	*(.ratelimit)
+	*(.init)
+	*(.timerptr)
+	*(.init.1)
+	*(.text)
+	*(.timer)
+	*(.loconst)
+	*(.rodata)
+	_text_end = . ;
+	}
+_text_size = _text_end - _text_start ;
+
+.data (_bss_end) : AT (_text_end) { 
+	_data_start = . ;
+	*(.data.*) 
+	_data_end = . ;
+	}
+_data_size = _data_end - _data_start ;
+
+. = _text_end + _data_size ;
+_end_readonly = . ;
+.parameter : {
+	*(.eeprom)
+	*(.parameter)
+}
+
+_eeprom_end = . ;
+_eeprom_size = _eeprom_end - _eeprom_start ;
+
+_stack_size = SPBASE + SPINIT - _data_end ;
+
+.loadcontrol 0x900000 : {
+	*(.loadcontrol)
+	SHORT(10)
+	SHORT(2)
+	SHORT(_eeprom_size)
+	SHORT(_stack_size)
+	SHORT(_data_size)
+	SHORT(_bss_size)
+	}
+
+}
+

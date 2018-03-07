@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Sample application information
+    Copyright (C) 2005-2011 Martin Koegler mkoegler@auto.tuwien.ac.at
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+-->
+<!DOCTYPE DeviceDesc SYSTEM "appinfo.dtd">
+<DeviceDesc xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.auto.tuwien.ac.at/~mkoegler/eib/xml/appinfo.xsd" version="0.0.0" xsi:schemaLocation="http://www.auto.tuwien.ac.at/~mkoegler/eib/appinfo.xsd">
+  <ProgramID>11234235r0fjdf9323</ProgramID>
+  <Description>
+    <MaskVersion>0012</MaskVersion>
+    <Title>disable button relay</Title>
+    <AddInfo>disables button transmit</AddInfo>
+    <OrderNo>1234674 PEI X</OrderNo>
+    <Manufacturer>TU</Manufacturer>
+    <Category>Test</Category>
+    <Author>Martin Koegler</Author>
+    <Copyright>(C) 2004</Copyright>
+  </Description>
+  <FunctionalBlock id="xxx">
+    <ProfileID>123</ProfileID>
+    <Title>Button</Title>
+    <Interface id="xxx2">
+      <DPType>12.121</DPType>
+      <Abbreviation>in</Abbreviation>
+      <Title>Input</Title>
+      <Reference idref="lp1"/>
+    </Interface>
+    <Interface id="if2">
+      <DPType>1.111</DPType>
+      <Abbreviation>out</Abbreviation>
+      <Reference idref="lp1"/>
+    </Interface>
+  </FunctionalBlock>
+  <FunctionalBlock id="xxx1">
+    <ProfileID>123</ProfileID>
+    <Title>Button1</Title>
+    <AddInfo>text</AddInfo>
+    <Interface id="defaultValue">
+      <DPType>122.001</DPType>
+      <Abbreviation>text</Abbreviation>
+      <Title>Info</Title>
+      <AddInfo>text</AddInfo>
+      <Reference idref="ip1"/>
+      <Reference idref="go2"/>
+    </Interface>
+  </FunctionalBlock>
+  <Property id="p1">
+    <Title>Property1</Title>
+    <AddInfo>Info</AddInfo>
+    <PropertyType>1</PropertyType>
+    <ObjectIndex>1</ObjectIndex>
+    <PropertyId>1</PropertyId>
+    <Writeable>true</Writeable>
+    <MaxArrayLength>1</MaxArrayLength>
+  </Property>
+  <Property id="p2">
+    <Title>Property2</Title>
+    <AddInfo>Info</AddInfo>
+    <PropertyType>11</PropertyType>
+    <ObjectIndex>2</ObjectIndex>
+    <PropertyId>2</PropertyId>
+    <Writeable>false</Writeable>
+    <MaxArrayLength>22</MaxArrayLength>
+  </Property>
+  <PollingSlave id="ps1">
+    <Title>Slave1</Title>
+    <AddInfo>Info</AddInfo>
+  </PollingSlave>
+  <PollingSlave id="ps2">
+    <Title>Slave2</Title>
+    <AddInfo>Info</AddInfo>
+  </PollingSlave>
+  <PollingMaster id="pm1">
+    <Title>Master1</Title>
+    <AddInfo>Info</AddInfo>
+  </PollingMaster>
+  <PollingMaster id="pm2">
+    <Title>Master1</Title>
+    <AddInfo>Info</AddInfo>
+  </PollingMaster>
+  <GroupObject id="go1">
+    <Title>Group1</Title>
+    <AddInfo>Info</AddInfo>
+    <GroupType>22</GroupType>
+    <Sending>true</Sending>
+    <Receiving>false</Receiving>
+    <Reading>false</Reading>
+    <StateBased>false</StateBased>
+  </GroupObject>
+  <GroupObject id="go2">
+    <Title>Group2</Title>
+    <AddInfo>Info</AddInfo>
+    <GroupType>11</GroupType>
+    <Sending>true</Sending>
+    <Receiving>false</Receiving>
+    <Reading>false</Reading>
+    <StateBased>true</StateBased>
+  </GroupObject>
+  <Parameter>
+    <ListParameter id="lp1">
+      <Title>Listparameter 1</Title>
+      <ListDefault idref="le1"/>
+      <ListElement id="le1">element1</ListElement>
+      <ListElement id="le2">element2</ListElement>
+      <Unit>cm</Unit>
+    </ListParameter>
+    <FloatParameter id="fp1">
+      <Title>Float1</Title>
+      <AddInfo>Info</AddInfo>
+      <MinValue>-2.3</MinValue>
+      <MaxValue>10.0</MaxValue>
+      <Default>2</Default>
+    </FloatParameter>
+    <IntParameter id="ip1">
+      <Title>Int1</Title>
+      <AddInfo>Info</AddInfo>
+      <MinValue>0</MinValue>
+      <MaxValue>10</MaxValue>
+      <Default>2</Default>
+    </IntParameter>
+    <StringParameter id="sp1">
+      <Title>String1</Title>
+      <AddInfo>Info</AddInfo>
+      <Default>234</Default>
+      <RegExp>[a-z]{5}</RegExp>
+      <MaxLength>5</MaxLength>
+    </StringParameter>
+    <IntParameter id="ip2">
+      <Title>Int2</Title>
+      <AddInfo>Info</AddInfo>
+      <MinValue>-100</MinValue>
+      <MaxValue>100000000</MaxValue>
+      <Default>2222222</Default>
+      <Unit>bar</Unit>
+      <Precision>2</Precision>
+      <Increment>4</Increment>
+    </IntParameter>
+    <ListParameter id="lp2">
+      <Title>List2</Title>
+      <AddInfo>Info</AddInfo>
+      <ListDefault idref="le3"/>
+      <ListElement id="le4">el4</ListElement>
+      <ListElement id="le3">el3</ListElement>
+    </ListParameter>
+    <FloatParameter id="fp2">
+      <Title>Float2</Title>
+      <AddInfo>Info</AddInfo>
+      <MinValue>3.21</MinValue>
+      <MaxValue>2222.1</MaxValue>
+      <Default>1</Default>
+      <Unit>foo</Unit>
+      <Precision>0.1</Precision>
+      <Increment>0.1</Increment>
+    </FloatParameter>
+    <StringParameter id="sp2">
+      <Title>String Parameter 2</Title>
+      <AddInfo>Info</AddInfo>
+      <Default>test</Default>
+      <MaxLength>41</MaxLength>
+      <Unit>xx</Unit>
+    </StringParameter>
+  </Parameter>
+</DeviceDesc>

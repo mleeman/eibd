@@ -1,0 +1,168 @@
+#!/bin/bash
+#    BCU SDK bcu development enviroment
+#    Copyright (C) 2005-2011 Martin Koegler <mkoegler@auto.tuwien.ac.at>
+#
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+version="@VERSION@"
+BCUGEN=@BINDIR@/bcugen2
+EXTRACT=@BINDIR@/extractprogid
+LIB=@LIBDIR@
+SINC=@INCDIR@
+LD=@LDDIR@
+TGCC=@TGCC@
+TLD=@TLD@
+TAR=@TAR@
+TAS=@TAS@
+
+set -e
+
+progname="`basename \"$0\"`"
+
+usage()
+{
+cat >&2 <<END
+$progname $version Copyright (C) 2005-2011 Martin Koegler <mkoegler@auto.tuwien.ac.at>
+creates a bcu image
+
+Usage: $progname [options] config_desc
+Options:
+	-Dxx	uses xxx as temorary directory and keep temporary files there 
+		(warning: all content can be lost)
+	-cxxx   uses xxx as program id
+        -ixxx   stores image as xxx (default:config_desc.load)
+
+END
+exit 1
+}
+
+error()
+{
+if [ $keep != 1 ]; then
+	rm -r $TMP
+fi
+exit 1
+}
+
+CONF=
+keep=0
+TMP=
+OUT=
+
+while [ $# != 0 ]
+do
+        value="`echo x\"$1\" | sed -e 's/^x-.//'`"
+        case "$1" in
+	-D*) keep=1; TMP="$value" ;;
+	-c*) CONF="$value" ;;
+	-i*) OUT="$value" ;;
+	
+        -*) echo "$progname: unknown option $1"
+            usage;;
+	*) break;;
+        esac
+        shift
+done
+
+if [ $# != 1 ]; then
+	echo "$progname: expect config_desc"
+	usage
+fi
+
+IN="$1"
+
+if [ ! -f "$IN" ]; then
+	echo "$progname: $IN not found"
+	exit 1 
+fi
+
+if [ "x$OUT" = "x" ]; then
+	OUT="$IN.load"
+fi
+
+if [ "x$TMP" = "x" ]; then
+	TMP=`mktemp -u bcusdk.XXXXXXXXXX`||exit 1
+	mkdir $TMP
+elif [ ! -e "$TMP" ]; then
+	mkdir $TMP
+fi
+
+if [ ! -d $TMP ]; then
+	echo "can not create directory $TMP"
+	exit 1
+fi
+
+TMP=`(cd $TMP; pwd)`
+
+if [ $keep != 1 ]; then
+	trap "rm -r $TMP; exit 1" 1 2 3 5 10 13 15
+fi
+
+if [ "x$CONF" = "x" ]; then
+	$EXTRACT "$IN" "$TMP/cf" || error
+
+else
+	cp "$CONF" "$TMP/cf" || error
+fi
+
+pushd "$TMP" >/dev/null || error
+$TAR x cf bcusdk-version || error
+
+if [ "x`cat bcusdk-version`" = "x0.0.0" ]; then
+$TAR x cf config || error
+$TAR x cf c.inc || error
+else
+echo "Unsupported Formatversion: `cat bcusdk-version`"
+error
+fi
+
+popd >/dev/null || error
+
+$BCUGEN "$TMP/config" "$IN" "$TMP/c.h" "$TMP/p1.s" "$TMP/p.var" || error
+
+VAR=`cat "$TMP/p.var"`
+
+if [ ! -f "$LIB/lib$VAR.a" ]; then
+echo "unknown variant $VAR"
+error
+fi
+
+LDPATH="-lc -lm `$TGCC -print-libgcc-file-name`"
+IFS=:
+for a in `$TGCC --print-search-dirs |grep "libraries: ="|cut -d= -f2-`
+do 
+    LDPATH="$LDPATH -L $a"	
+done
+IFS=' '
+
+echo "#include \"c.h\"">"$TMP/c.c"
+echo "#include \"c.inc\"">>"$TMP/c.c"
+
+$TGCC -c -O3 -Os -Wall -Winline -gstabs -I$SINC -o "$TMP/c.o" "$TMP/c.c" || error
+$TAS -I$SINC -o "$TMP/p1.o" "$TMP/p1.s" || error
+
+$TLD -Map "$TMP/elf.map" -N -T "$LD/$VAR.link" --move-sections --relax -o "$TMP/elf" "$TMP/c.o" "$TMP/p1.o" -\( $LDPATH "$LIB/lib$VAR.a" -\) || error
+$TLD -Map "$TMP/load.map" -T $LD/genload.link -o "$TMP/load" "$TMP/elf" || error
+
+
+cp "$TMP/load" "$OUT" || error
+
+if [ $keep != 1 ]; then
+	rm -r "$TMP"
+fi
+echo "Done"
+exit 0
+
+

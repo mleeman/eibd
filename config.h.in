@@ -1,0 +1,129 @@
+/* config.h.in.  Generated from configure.in by autoheader.  */
+
+/* building java client library */
+#undef BUILD_JAVA
+
+/* FreeBSD compatible sourceinfo */
+#undef HAVE_BSD_SOURCEINFO
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
+/* EIBnet/IP enabled */
+#undef HAVE_EIBNETIP
+
+/* EIBnet/IP server enabled */
+#undef HAVE_EIBNETIPSERVER
+
+/* EIBnet/IP tunneling enabled */
+#undef HAVE_EIBNETIPTUNNEL
+
+/* FT1.2 enabled */
+#undef HAVE_FT12
+
+/* Define to 1 if you have the `gethostbyname_r' function. */
+#undef HAVE_GETHOSTBYNAME_R
+
+/* Group Cache enabled */
+#undef HAVE_GROUPCACHE
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Linux low latency mode enabled */
+#undef HAVE_LINUX_LOWLATENCY
+
+/* Linux netlink layer available */
+#undef HAVE_LINUX_NETLINK
+
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* PEI16 enabled */
+#undef HAVE_PEI16
+
+/* PEI16s enabled */
+#undef HAVE_PEI16s
+
+/* SA_SIZE function available */
+#undef HAVE_SA_SIZE
+
+/* Do we have sockaddr_in.sin_len? */
+#undef HAVE_SOCKADDR_IN_LEN
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/time.h> header file. */
+#undef HAVE_SYS_TIME_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* TPUART enabled */
+#undef HAVE_TPUART
+
+/* TPUARTs enabled */
+#undef HAVE_TPUARTs
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* USB backend enabled */
+#undef HAVE_USB
+
+/* Windows IPHelper available */
+#undef HAVE_WINDOWS_IPHELPER
+
+/* Define to the sub-directory in which libtool stores uninstalled libraries.
+   */
+#undef LT_OBJDIR
+
+/* Linux usb available */
+#undef OS_LINUX
+
+/* Name of package */
+#undef PACKAGE
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* don't use libstdc++ */
+#undef USE_NOLIBSTDC
+
+/* Version number of package */
+#undef VERSION
+
+/* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
+   `char[]'. */
+#undef YYTEXT_POINTER

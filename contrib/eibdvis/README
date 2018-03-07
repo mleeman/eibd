@@ -1,0 +1,99 @@
+eibdvis - an example of an eibd based visualisation
+---------------------------------------------------
+
+To use it, please copy all php and css files into an directory on a PHP
+enabled webserver.
+
+Additionally you need to copy eibclient.php into the directory. eibclient.php
+will be installed to /usr/share/bcusdk/eibclient.php [This file is
+part of the package libeibclient-dev or libeibclient-devel].
+
+Then you need to adapt config.php to your needs:
+
+In the first line, insert the title of your project and the
+IP address/hostname of the server, on which eibd is running. 
+
+The shipped configuration file is for the "Gemma Trainings Koffer 2".
+If you are interessed in details of the ETS project, please send me an
+email.
+
+For this example, I use "GTK 2 status" and the IP of the localhost:
+|  $config = new Config ("GTK 2 status", "127.0.0.1");
+
+
+Then every "room" (it could be also seen as group) is defined as followed:
+|  $room = new Room ("name");
+|  /* insert definition of devices in the room*/
+|  $config->addRoom($room);
+
+
+Currently, the following devices are implemtend:
+
+- a switch:
+|  $akt=new EIBSwitch("light A", "1/0/2", "1/0/2", 0);
+|  $room->add($akt);
+
+The parameters are:
+ * name of the device
+ * group address to send control telegrams to
+ * group address to request the status from
+ * maximum age of the status
+
+- a dimmer:
+|  $akt=new EIBDimmer("light A", "1/1/0", "1/1/10", "1/1/20", "1/1/30", "1/1/40", 0, 0);
+|  $room->add($akt);
+
+The parameters are:
+ * name of the device
+ * group address to send on/off telegrams to
+ * group address to send dim up/down telegrams to
+ * group address to send the current dimming value to
+ * group address to request the on/off status from
+ * group address to request the dimming value status from
+ * maximum age of the on/off status
+ * maximum age of the dimming value status
+
+- a blind contoller:
+|  $akt=new EIBBlind("blind M2", "1/2/1", "1/2/3", "1/2/7", "", 0, 0);
+|  $room->add($akt);
+
+The parameters are:
+ * name of the device
+ * group address to send blind control telegrams to
+ * group address to send slant control telegrams to
+ * group address to request the blind status from
+ * group address to request the slant status from
+ * maximum age of the blind status
+ * maximum age of the slant status
+
+- a temperature display:
+|  $akt=new EIBTemperature("room temperature", "1/3/4", "1/3/4", 0);
+|  $room->add($akt);
+
+The parameters are:
+ * name of the device
+ * group address to send the temperature to
+ * group address to request the temperature (=status) from
+ * maximum age of the status
+
+The general rules for the parameters are:
+
+ * you can leaf a group address empty (""), if don't want to use
+   it. If you do that, some functions will not be available.
+ * the age should be normaly zero. The device should be configured
+   to send a telegram, if the status changes. If this does not work,
+   you can specify an age (in seconds) to force a reread of the value.
+
+Some more notes:
+ * to get a correct display, you should configure your actuators so, that
+   the status group objects are readable and send a telegram, if the status
+   changes.
+
+ * The goal of these files is not to create a complete visualisation
+  solution. They are a demonstration, how to used eibd with
+  PHP. Additionally they should be a starting point for creating your own
+  solution (Patches are welcome).
+
+Martin Koegler
+mkoegler@auto.tuwien.ac.at
+

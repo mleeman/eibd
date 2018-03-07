@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Application Information DTD
+    Copyright (C) 2005-2011 Martin Koegler mkoegler@auto.tuwien.ac.at
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    Modified version of this specification must change the namespace.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+-->
+<!-- defines version 0.0.0 -->
+
+<!ENTITY % IDSTRING    "CDATA">
+<!ENTITY % STRING    "(#PCDATA)">
+
+<!ENTITY % INT "(#PCDATA)">
+<!ENTITY % BOOL "(#PCDATA)">
+<!ENTITY % FLOAT "(#PCDATA)">
+
+<!ENTITY % DPTYPE "(#PCDATA)">
+<!ENTITY % FBTYPE "(#PCDATA)">
+<!ENTITY % GROUPTYPE "(#PCDATA)">
+<!ENTITY % PROPERTYTYPE "(#PCDATA)">
+
+<!ELEMENT Category %STRING;>
+<!ELEMENT Manufacturer %STRING;>
+<!ELEMENT OrderNo %STRING;>
+<!ELEMENT Title %STRING;>
+<!ELEMENT Author %STRING;>
+<!ELEMENT Copyright %STRING;>
+<!ELEMENT MaskVersion %STRING;>
+<!ELEMENT AddInfo %STRING;>
+
+<!ELEMENT Description (MaskVersion,Title,AddInfo?,OrderNo?,Manufacturer?,Category?,Author?,Copyright?)>
+
+
+<!ELEMENT PollingMaster (Title,AddInfo?)>
+<!ATTLIST PollingMaster
+   id ID #REQUIRED
+>
+<!ELEMENT PollingSlave (Title,AddInfo?)>
+<!ATTLIST PollingSlave
+   id ID #REQUIRED
+>
+
+<!ELEMENT StateBased %BOOL;>
+<!ELEMENT Sending %BOOL;>
+<!ELEMENT Receiving %BOOL;>
+<!ELEMENT Reading %BOOL;>
+<!ELEMENT GroupType %GROUPTYPE;>
+
+<!ELEMENT GroupObject (Title,AddInfo?,GroupType,Sending,Receiving,Reading,StateBased)>
+<!ATTLIST GroupObject
+   id ID #REQUIRED
+>
+
+<!ELEMENT PropertyType %GROUPTYPE;>
+<!ELEMENT PropertyId %INT;>
+<!ELEMENT ObjectIndex %INT;>
+<!ELEMENT Writeable %BOOL;>
+<!ELEMENT MaxArrayLength %INT;>
+
+<!ELEMENT Property (Title,AddInfo?,PropertyType,ObjectIndex,PropertyId,Writeable,MaxArrayLength)>
+<!ATTLIST Property
+   id ID #REQUIRED
+>
+
+<!ELEMENT Unit %STRING;>
+
+<!ELEMENT ListElement %STRING;>
+<!ATTLIST ListElement
+   id ID #REQUIRED
+>
+<!ELEMENT ListDefault EMPTY>
+<!ATTLIST ListDefault
+   idref IDREF #REQUIRED
+>
+
+<!ELEMENT ListParameter (Title,AddInfo?,ListDefault,ListElement+,Unit?)>
+<!ATTLIST ListParameter
+   id ID #REQUIRED
+>
+
+<!ELEMENT MinValue %FLOAT;>
+<!ELEMENT MaxValue %FLOAT;>
+<!ELEMENT DefaultValue %FLOAT;>
+
+<!ELEMENT Precision %FLOAT;>
+<!ELEMENT Increment %FLOAT;>
+
+<!ELEMENT IntParameter (Title,AddInfo?,MinValue,MaxValue,Default,Unit?,Precision?,Increment?)>
+<!ATTLIST IntParameter
+   id ID #REQUIRED
+>
+<!ELEMENT FloatParameter (Title,AddInfo?,MinValue,MaxValue,Default,Unit?,Precision?,Increment?)>
+<!ATTLIST FloatParameter
+   id ID #REQUIRED
+>
+
+<!ELEMENT MaxLength %INT;>
+<!ELEMENT RegExp %STRING;>
+<!ELEMENT Default %STRING;>
+
+<!ELEMENT StringParameter (Title,AddInfo?,Default,RegExp?,MaxLength,Unit?)>
+<!ATTLIST StringParameter
+   id ID #REQUIRED
+>
+
+<!ELEMENT DPType %DPTYPE;>
+<!ELEMENT Abbreviation %STRING;>
+<!ELEMENT GroupTitle %STRING;>
+<!ELEMENT InvisibleIf %STRING;>
+
+<!ELEMENT Reference EMPTY>
+<!ATTLIST Reference
+   idref IDREF #REQUIRED
+>
+
+
+<!ELEMENT Interface (DPType,Abbreviation,Title?,AddInfo?,GroupTitle?,InvisibleIf?,Reference+)>
+<!ATTLIST Interface
+   id ID #REQUIRED
+>
+
+<!ELEMENT ProfileID %FBTYPE;>
+
+<!ELEMENT FunctionalBlock (ProfileID,Title,AddInfo?,Interface*)>
+<!ATTLIST FunctionalBlock
+   id ID #REQUIRED
+>
+
+
+<!ELEMENT Parameter (ListParameter|IntParameter|FloatParameter|StringParameter)+>
+<!ELEMENT ProgramID %STRING;>
+
+<!ELEMENT DeviceDesc (ProgramID,Description,FunctionalBlock+,(GroupObject|Property|PollingMaster|PollingSlave)*,Parameter?)>
+<!ATTLIST DeviceDesc
+   version %IDSTRING; #REQUIRED 
+>

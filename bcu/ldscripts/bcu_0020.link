@@ -1,0 +1,142 @@
+/*
+    BCU SDK bcu development enviroment
+    Copyright (C) 2005-2011 Martin Koegler <mkoegler@auto.tuwien.ac.at>
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    In addition to the permissions in the GNU General Public License, 
+    you may link the compiled version of this file into combinations
+    with other programs, and distribute those combinations without any 
+    restriction coming from the use of this file. (The General Public 
+    License restrictions do apply in other respects; for example, they 
+    cover modification of the file, and distribution when not linked into 
+    a combine executable.)
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
+/* BCU 2 */
+
+SYSLIB(.data:.data.hi:_low_ram_size:_low_ram_max)
+SYSLIB(.bss:.bss.hi:_low_ram_size:_low_ram_max)
+
+SECTIONS
+{
+. = 0xCE;
+_bss_start = . ;
+.loram : {
+	*(.debounce)
+	*(.timerval)
+	*(.register)
+        *(.ramflags)
+}
+
+ram_start = . ;
+.ram : {
+        *(.ram)
+}
+.bss : {
+	*(.bss*)
+}
+_bss_end = . ;
+_bss_size = _bss_end - _bss_start ;
+
+. = 0x0972;
+
+_bss_hi_start = . ;
+.bss.hi : {
+}
+_bss_hi_end = . ;
+_bss_hi_size = _bss_hi_end - _bss_hi_start ;
+
+. = 0x100;
+
+.text : {
+        _text_start = . ;
+        *(.bcuconfig)
+        *(.addrtab)
+eeprom_start = . ;
+	*(.eeprom)
+eeprom_end = . ;
+readonly_start = . ;
+        *(.ratelimit)
+	*(.timerptr)
+	*(.timer)
+	*(.loconst)
+_limit_1ff = . ;
+        *(.commobjs)
+        *(.init)
+	*(.init.1)
+	*(.eibobjects)
+        *(.text)
+	*(.eibpeihandler)
+        *(.rodata)
+        _text_end = . ;
+}
+_text_size = _text_end - _text_start ;
+
+.data (_bss_end) : AT (_text_end) {
+        _data_start = . ;
+        *(.data.*)
+        _data_end = . ;
+        }
+_data_size = _data_end - _data_start ;
+
+_data_hi_img = _text_end + _data_size;
+
+.data.hi (_bss_hi_end) : AT (_text_end + _data_size ) {
+        _data_hi_start = . ;
+
+}
+_data_hi_size = SIZEOF(.data.hi) ;
+
+. = _text_end + _data_size + _data_hi_size ;
+
+.checksum.1 : {
+	BYTE(0)
+}
+
+readonly_end = . ;
+.eeprom : {
+        *(.assoctab)
+}
+param_start = . ;
+.parameter : {
+	*(.parameter)
+}
+.checksum.2 : {
+        BYTE(_limit_1ff - 0x101)
+}
+param_end = . ;
+
+_eeprom_size = param_end - _text_start ;
+
+_stack_size = SPBASE + SPINIT - _data_end ;
+SPBASE = 0 ;
+SPINIT = 0xE0 ;
+
+.loadcontrol 0x900000 : {
+        *(.loadcontrol)
+        SHORT(14)
+        SHORT(3)
+        SHORT(_eeprom_size)
+        SHORT(_stack_size)
+        SHORT(_data_size)
+        SHORT(_bss_size)
+        SHORT(_data_hi_size)
+        SHORT(_bss_hi_size)
+}
+_low_ram_size = _bss_size + _data_size;
+_low_ram_max = 18 ; 
+
+}

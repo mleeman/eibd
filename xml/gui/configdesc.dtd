@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Configuration Information DTD
+    Copyright (C) 2005-2011 Martin Koegler mkoegler@auto.tuwien.ac.at
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    Modified version of this specification must change the namespace.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+-->
+<!-- defines version 0.0.0 -->
+
+<!ENTITY % IDSTRING    "CDATA">
+<!ENTITY % STRING    "(#PCDATA)">
+
+<!ENTITY % INT "(#PCDATA)">
+<!ENTITY % BOOL "(#PCDATA)">
+<!ENTITY % FLOAT "(#PCDATA)">
+
+<!ENTITY % PRIORITY "(#PCDATA)">
+
+<!ENTITY % EIBADDR "(#PCDATA)">
+<!ENTITY % GROUPADDR "(#PCDATA)">
+<!ENTITY % POLLINGADDR "(#PCDATA)">
+<!ENTITY % POLLINGSLOT "(#PCDATA)">
+<!ENTITY % POLLINGCOUNT "(#PCDATA)">
+
+<!ENTITY % KEY "(#PCDATA)">
+<!ENTITY % KEYID "CDATA">
+
+<!ENTITY % ACCESSLEVEL "(#PCDATA)">
+
+<!ELEMENT InstallKey %KEY;>
+<!ELEMENT Key %KEY;>
+<!ATTLIST Key
+  id %KEYID; #REQUIRED
+>
+
+<!ELEMENT GroupAddr %GROUPADDR;>
+<!ELEMENT PollingAddress %POLLINGADDR;>
+
+<!ELEMENT Priority %PRIORITY;>
+<!ELEMENT SendAddress %GROUPADDR;>
+<!ELEMENT ReadRequestAddress %GROUPADDR;>
+<!ELEMENT ReceiveAddress (GroupAddr+)>
+<!ELEMENT ReadAddress (GroupAddr+)>
+<!ELEMENT UpdateAddress (GroupAddr+)>
+
+<!ELEMENT GroupObject (Priority?,SendAddress?,ReadRequestAddress?,ReceiveAddress?,ReadAddress?,UpdateAddress?)>
+<!ATTLIST GroupObject
+   id ID #REQUIRED
+>
+
+<!ELEMENT Disable %BOOL;>
+<!ELEMENT ReadOnly %BOOL;>
+<!ELEMENT ReadAccess %ACCESSLEVEL;>
+<!ELEMENT WriteAccess %ACCESSLEVEL;>
+
+<!ELEMENT Property (Disable?,ReadOnly?,ReadAccess?,WriteAccess?)>
+<!ATTLIST Property
+   id ID #REQUIRED
+>
+
+<!ELEMENT PollingCount %POLLINGCOUNT;>
+
+<!ELEMENT PollingMaster (PollingAddress,PollingCount)?>
+<!ATTLIST PollingMaster
+   id ID #REQUIRED
+>
+
+<!ELEMENT PollingSlot %POLLINGSLOT;>
+
+<!ELEMENT PollingSlave (PollingAddress,PollingSlot)?>
+<!ATTLIST PollingSlave
+   id ID #REQUIRED
+>
+
+<!ELEMENT Value %STRING;>
+
+<!ELEMENT ListParameter (Value)>
+<!ATTLIST ListParameter
+   id ID #REQUIRED
+>
+
+<!ELEMENT IntParameter (Value)>
+<!ATTLIST IntParameter
+   id ID #REQUIRED
+>
+
+<!ELEMENT FloatParameter (Value)>
+<!ATTLIST FloatParameter
+   id ID #REQUIRED
+>
+
+<!ELEMENT StringParameter (Value)>
+<!ATTLIST StringParameter
+   id ID #REQUIRED
+>
+
+<!ELEMENT Parameter (ListParameter|IntParameter|FloatParameter|StringParameter)+>
+
+<!ELEMENT ProgramID %STRING;>
+<!ELEMENT PhysicalAddress %EIBADDR;>
+
+
+<!ELEMENT DeviceConfig (ProgramID,PhysicalAddress,InstallKey?,Key*,(GroupObject|Property|PollingMaster|PollingSlave)*,Parameter?)>
+<!ATTLIST DeviceConfig
+   version %IDSTRING; #REQUIRED 
+>

@@ -1,0 +1,45 @@
+99-eib.rules:
+
+This is a sample udev rules files to be installed into /etc/udev/rules.d.
+This file can be used to grant eib access to non root users.
+
+You will probably want to comment out all lines of devices, which you
+don't own.
+
+If you want grant access to a specifc user, you need to add
+OWNER="<user>"
+to each rule. If not, the owner is most likely root.
+
+If you want to change the group, you need the following setting:
+GROUP="root"
+
+You can choose three permission level:
+* every user on your system
+MODE="0666"
+* only user and group specified in the rule
+MODE="0660"
+* only user specified in the rule
+MODE="0600"
+
+The file contains udev rules for some known KNX USB interfaces, but
+the list will likely be incomplete. If your interface is not listed,
+you can do the following:
+
+1) run
+$ lsusb -v  
+2) Search your device in the list. One example:
+  idVendor           0x0e77                             
+  idProduct          0x0111                             
+  bcdDevice            2.01                             
+  iManufacturer           1 Siemens AG                  
+  iProduct                2 KNX/EIB-USB Interface (Flush mounted)
+3) Note the values of idProduct and idVendor
+4) Create add new rule inserting the values at the end of the file:
+
+SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTR{idVendor}=="<value of idVendor>", ATTR{idProduct}=="<value of idProduct>",GROUP="root",MODE="0666"
+
+Please mail me the lsusb -v output of your KNX USB interface, so that
+I can add it to the BCUSDK distribution.
+
+Martin Koegler
+mkoegler@auto.tuwien.ac.at

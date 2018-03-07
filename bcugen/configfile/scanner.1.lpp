@@ -1,0 +1,294 @@
+
+
+%{
+#include "scanner.h"
+#include "classes.h"
+#include "parser1.1.h"
+%}
+%option yylineno
+%option noyywrap
+%option never-interactive
+%x comment
+%%
+[ \t\r\n] ;
+\/\/.* ;
+[#].* ;
+"/*" BEGIN(comment);
+<comment>[^*\n]*
+<comment>"*"+[^*/\n]*
+<comment>\n ;
+<comment>"*"+"/" BEGIN(INITIAL);
+";" return ';';
+":" return ':';
+"?" return '?';
+"{" return '{';
+"}" return '}';
+"," return ',';
+")" return ')';
+"(" return '(';
+"||" return T_OR;
+"&&" return T_AND;
+"|" return '|';
+"&" return '&';
+"^" return '^';
+"==" return T_EQ;
+"=" return '=';
+"!=" return T_NE;
+"<=" return T_LE;
+">=" return T_GE;
+">>" return T_RSHIFT;
+"<<" return T_LSHIFT;
+"<" return '<';
+">" return '>';
+"+" return '+';
+"-" return '-';
+"*" return '*';
+"/" return '/';
+"%" return '%';
+"~" return '~';
+"!" return '!';
+"IN" return T_IN;
+"CI" return T_CI;
+true return TRUE;
+false return FALSE;
+Interface return TOK_Interface;
+ID return TOK_ID;
+Abbreviation return TOK_Abbreviation;
+Title return TOK_Title;
+AddInfo return TOK_AddInfo;
+GroupTitle return TOK_GroupTitle;
+InvisibleIf return TOK_InvisibleIf;
+DPType return TOK_DPType;
+Reference return TOK_Reference;
+References return TOK_References;
+
+
+FunctionalBlock return TOK_FunctionalBlock;
+ID return TOK_ID;
+Title return TOK_Title;
+AddInfo return TOK_AddInfo;
+ProfileID return TOK_ProfileID;
+
+
+
+GroupObject return TOK_GroupObject;
+ID return TOK_ID;
+Name return TOK_Name;
+Type return TOK_Type;
+on_update return TOK_on_update;
+eeprom return TOK_eeprom;
+Sending return TOK_Sending;
+Receiving return TOK_Receiving;
+Reading return TOK_Reading;
+Title return TOK_Title;
+AddInfo return TOK_AddInfo;
+StateBased return TOK_StateBased;
+
+
+
+Priority return TOK_Priority;
+SendAddress return TOK_SendAddress;
+ReadRequestAddress return TOK_ReadRequestAddress;
+ReceiveAddress return TOK_ReceiveAddress;
+ReadAddress return TOK_ReadAddress;
+UpdateAddress return TOK_UpdateAddress;
+
+Property return TOK_Property;
+ID return TOK_ID;
+Name return TOK_Name;
+Type return TOK_Type;
+PropertyID return TOK_PropertyID;
+MaxArrayLength return TOK_MaxArrayLength;
+Writeable return TOK_Writeable;
+eeprom return TOK_eeprom;
+handler return TOK_handler;
+Title return TOK_Title;
+AddInfo return TOK_AddInfo;
+
+Disable return TOK_Disable;
+ReadOnly return TOK_ReadOnly;
+ReadAccess return TOK_ReadAccess;
+WriteAccess return TOK_WriteAccess;
+
+Object return TOK_Object;
+ObjectIndex return TOK_ObjectIndex;
+Name return TOK_Name;
+ObjectType return TOK_ObjectType;
+
+Title return TOK_Title;
+AddInfo return TOK_AddInfo;
+
+
+
+
+
+PollingMaster return TOK_PollingMaster;
+ID return TOK_ID;
+Name return TOK_Name;
+Title return TOK_Title;
+AddInfo return TOK_AddInfo;
+
+PollingAddress return TOK_PollingAddress;
+PollingCount return TOK_PollingCount;
+
+PollingSlave return TOK_PollingSlave;
+ID return TOK_ID;
+Name return TOK_Name;
+Title return TOK_Title;
+AddInfo return TOK_AddInfo;
+
+PollingAddress return TOK_PollingAddress;
+PollingSlot return TOK_PollingSlot;
+
+ListParameter return TOK_ListParameter;
+ID return TOK_ID;
+Name return TOK_Name;
+Elements return TOK_Elements;
+Title return TOK_Title;
+AddInfo return TOK_AddInfo;
+Default return TOK_Default;
+Unit return TOK_Unit;
+ListElements return TOK_ListElements;
+ListDefault return TOK_ListDefault;
+
+
+Value return TOK_Value;
+
+IntParameter return TOK_IntParameter;
+ID return TOK_ID;
+Name return TOK_Name;
+MinValue return TOK_MinValue;
+MaxValue return TOK_MaxValue;
+Title return TOK_Title;
+AddInfo return TOK_AddInfo;
+Default return TOK_Default;
+Unit return TOK_Unit;
+Precision return TOK_Precision;
+Increment return TOK_Increment;
+
+
+Value return TOK_Value;
+
+StringParameter return TOK_StringParameter;
+ID return TOK_ID;
+Name return TOK_Name;
+RegExp return TOK_RegExp;
+MaxLength return TOK_MaxLength;
+Default return TOK_Default;
+Title return TOK_Title;
+AddInfo return TOK_AddInfo;
+Unit return TOK_Unit;
+
+Value return TOK_Value;
+
+FloatParameter return TOK_FloatParameter;
+ID return TOK_ID;
+Name return TOK_Name;
+MinValue return TOK_MinValue;
+MaxValue return TOK_MaxValue;
+Title return TOK_Title;
+AddInfo return TOK_AddInfo;
+Unit return TOK_Unit;
+Precision return TOK_Precision;
+Increment return TOK_Increment;
+Default return TOK_Default;
+
+Value return TOK_Value;
+
+Timer return TOK_Timer;
+Name return TOK_Name;
+Type return TOK_Type;
+Resolution return TOK_Resolution;
+on_expire return TOK_on_expire;
+
+
+
+Debounce return TOK_Debounce;
+Name return TOK_Name;
+Time return TOK_Time;
+
+
+Device return TOK_Device;
+ProgramID return TOK_ProgramID;
+ManufacturerCode return TOK_ManufacturerCode;
+InternalManufacturerCode return TOK_InternalManufacturerCode;
+DeviceType return TOK_DeviceType;
+Version return TOK_Version;
+SyncRate return TOK_SyncRate;
+PEIType return TOK_PEIType;
+PortADDR return TOK_PortADDR;
+PortCDDR return TOK_PortCDDR;
+U_DELMSG return TOK_U_DELMSG;
+RouteCount return TOK_RouteCount;
+BusyLimit return TOK_BusyLimit;
+INAKLimit return TOK_INAKLimit;
+RateLimit return TOK_RateLimit;
+CPOL return TOK_CPOL;
+CPHA return TOK_CPHA;
+AutoPLMA return TOK_AutoPLMA;
+A_Event return TOK_A_Event;
+BCU1_SEC return TOK_BCU1_SEC;
+BCU1_PROTECT return TOK_BCU1_PROTECT;
+BCU2_PROTECT return TOK_BCU2_PROTECT;
+BCU2_WATCHDOG return TOK_BCU2_WATCHDOG;
+PLM_FAST return TOK_PLM_FAST;
+include return TOK_include;
+Title return TOK_Title;
+AddInfo return TOK_AddInfo;
+OrderNo return TOK_OrderNo;
+Manufacturer return TOK_Manufacturer;
+Category return TOK_Category;
+Author return TOK_Author;
+Copyright return TOK_Copyright;
+
+Test_Addr_Count return TOK_Test_Addr_Count;
+Test_Assoc_Count return TOK_Test_Assoc_Count;
+
+
+
+
+
+
+
+
+
+
+on_run return TOK_on_run;
+on_init return TOK_on_init;
+on_save return TOK_on_save;
+on_pei_init return TOK_on_pei_init;
+on_pei_message return TOK_on_pei_message;
+on_pei_cycle return TOK_on_pei_cycle;
+on_pei_user return TOK_on_pei_user;
+on_pei_rc_even return TOK_on_pei_rc_even;
+on_pei_rc_odd return TOK_on_pei_rc_odd;
+on_pei_tc return TOK_on_pei_tc;
+on_pei_tdre return TOK_on_pei_tdre;
+on_pei_sci_idle return TOK_on_pei_sci_idle;
+on_pei_spif return TOK_on_pei_spif;
+on_pei_oca return TOK_on_pei_oca;
+on_pei_ocb return TOK_on_pei_ocb;
+on_pei_ica return TOK_on_pei_ica;
+on_pei_icb return TOK_on_pei_icb;
+
+MaskVersion return TOK_MaskVersion;
+
+BCU return TOK_BCU;
+Model return TOK_Model;
+
+
+
+Keys return TOK_Keys;
+PhysicalAddress return TOK_PhysicalAddress;
+InstallKey return TOK_InstallKey;
+
+["]([^\\"]|[\\]["]|[\\]["]|[\\][^"])+["] yylval.str=yytext; return STRING;
+[$][0-9]+\.[0-9]+\.[0-9]+ { int a, b, c; sscanf (yytext+1, "%d.%d.%d", &a, &b, &c); yylval.intval=((a & 0x0f) << 12) | ((b & 0x0f) << 8) | ((c & 0xff)); return INT;}
+[$][0-9]+\/[0-9]+\/[0-9]+ { int a, b, c; sscanf (yytext+1, "%d/%d/%d", &a, &b, &c); yylval.intval=((a & 0x1f) << 11) | ((b & 0x07) << 8) | ((c & 0xff)); return INT;}
+[$][0-9]+\/[0-9]+ { int a, b; sscanf (yytext+1, "%d/%d", &a, &b); yylval.intval=((a & 0x1f) << 11) | ((b & 0x7FF)); return INT;}
+0x[0-9A-Fa-f]+ yylval.intval=strtol(yytext,0,16);return INT;
+[-]?[0-9]+\.[0-9]*([eE][-]?[0-9]+)? yylval.fval=strtod(yytext,0);return FLOAT;
+[-]?[0-9]*\.[0-9]+([eE][-]?[0-9]+)? yylval.fval=strtod(yytext,0);return FLOAT;
+[-]?[0-9]+ yylval.intval=strtol(yytext,0,10); return INT;
+[A-Za-z_][A-Za-z_0-9]* yylval.str=yytext; return IDENT;
+. parserError(_("unexpected Character %s"),yytext);

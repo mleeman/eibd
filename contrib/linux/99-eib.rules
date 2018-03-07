@@ -1,0 +1,43 @@
+# udev rule file
+# grants eib access to everybody
+#
+# copy to /etc/udev/rules.d
+
+# BCU 1 kernel driver
+KERNEL=="eib[0-9]",     GROUP="root",MODE="0666"
+# Serial Ports (FT1.2, TPUART)
+KERNEL=="ttyS[0-9]",     GROUP="root",MODE="0666"
+# Schlaps&Partner: EIB-USB Data Interface [Philips Semiconductors]
+SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTR{idVendor}=="04cc", ATTR{idProduct}=="0301",GROUP="root",MODE="0666"
+# Siemens AG: KNX/EIB-USB Interface (DIN rail)
+SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTR{idVendor}=="0e77", ATTR{idProduct}=="0112",GROUP="root",MODE="0666"
+# Siemens AG: KNX/EIB-USB Interface (Flush mounted)
+SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTR{idVendor}=="0e77", ATTR{idProduct}=="0111",GROUP="root",MODE="0666"
+# Weinzierl Engineering GmbH: KNX-USB Data Interface (UP)
+SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTR{idVendor}=="0e77", ATTR{idProduct}=="0102",GROUP="root",MODE="0666"
+# Weinzierl Engineering GmbH: KNX-USB Data Interface
+SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTR{idVendor}=="0e77", ATTR{idProduct}=="0103",GROUP="root",MODE="0666"
+# Weinzierl Engineering GmbH: KNX-USB Data Interface (Weinzierl/Lingg&Janke DIN-rail)
+SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTR{idVendor}=="0e77", ATTR{idProduct}=="0104",GROUP="root",MODE="0666"
+# Weinzierl Engineering GmbH: KNX-USB Data Interface (Hensel DIN-rail)
+SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTR{idVendor}=="0e77", ATTR{idProduct}=="0121",GROUP="root",MODE="0666"
+# Weinzierl Engineering GmbH: KNX-USB Data Interface (MerlinGerin UP)
+SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTR{idVendor}=="0e77", ATTR{idProduct}=="0141",GROUP="root",MODE="0666"
+# Insta Elektro GmbH: KNX-USB Data Interface
+SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTR{idVendor}=="135e", ATTR{idProduct}=="0020",GROUP="root",MODE="0666"
+# Insta Elektro GmbH: KNX-USB Data Interface (Berker)
+SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTR{idVendor}=="135e", ATTR{idProduct}=="0021",GROUP="root",MODE="0666"
+# Insta Elektro GmbH: KNX-USB Data Interface (Gira)
+SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTR{idVendor}=="135e", ATTR{idProduct}=="0022",GROUP="root",MODE="0666"
+# Insta Elektro GmbH: KNX-USB Data Interface (Jung)
+SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTR{idVendor}=="135e", ATTR{idProduct}=="0023",GROUP="root",MODE="0666"
+# Insta Elektro GmbH: KNX-USB Data Interface (Merten)
+SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTR{idVendor}=="135e", ATTR{idProduct}=="0024",GROUP="root",MODE="0666"
+# Hager Electro: KNX-USB Data Interface [Insta Elektro GmbH]
+SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTR{idVendor}=="135e", ATTR{idProduct}=="0025",GROUP="root",MODE="0666"
+# Insta Elektro GmbH: KNX-USB Data Interface (Feller)
+SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTR{idVendor}=="135e", ATTR{idProduct}=="0026",GROUP="root",MODE="0666"
+# Busch-Jaeger Elektro GmbH: KNX-USB Interface (Flush mounted) [Typ 6133]
+SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTR{idVendor}=="145c", ATTR{idProduct}=="1330",GROUP="root",MODE="0666"
+# ABB STOTZ-KONTAKT GmbH: KNX-USB Interface (REG)
+SUBSYSTEM=="usb",ENV{DEVTYPE}=="usb_device",ATTR{idVendor}=="147b", ATTR{idProduct}=="5120",GROUP="root",MODE="0666"

@@ -1,0 +1,123 @@
+bcusdk - A free development environment for BCU1 and BCU2
+---------------------------------------------------------
+
+Copyright (C) 2005-2011 Martin Koegler <mkoegler@auto.tuwien.ac.at>
+http://www.auto.tuwien.ac.at/~mkoegler/
+
+In order to justify continuing development, it is helpful to have 
+an idea of how many people are using this software. To contribute, 
+please send a short mail to bcusdk@auto.tuwien.ac.at whether you 
+find this software useful.
+
+Please note, that this is not requirement to use/modify/distribute the
+software.
+
+First a legal WARNING:
+----------------------
+
+This program may destroy hardware or cause other damage.
+This program comes with no warrenty, refer to clause 11+12
+of the GNU GPL:
+
+			    NO WARRANTY
+
+  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED
+OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS
+TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE
+PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING,
+REPAIR OR CORRECTION.
+
+  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
+REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES,
+INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING
+OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED
+TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY
+YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER
+PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGES.
+
+---------------------------------------------------------
+
+After the legal warning, what does this mean:
+
+Every thing, except eibd, transforms only files like a normal
+compiler and is not really dangerous.
+
+In the default configuration, eibd is only dangerouse, if a
+buffer overflow (or similar) is found, because all bus access
+backends are disabled.
+
+Run eibd in a controlled environment, where you don't expect
+malicious people, because eibd has no access control mechanisms
+in it. Additionally there has been no audit for security problems.
+
+At configure time, you have to enable all backends, with which
+you like to work (It is possible to enable all, if you like it).
+
+Running eibd on Linux 2.6.x (where x is < 11) may crash your kernel,
+even as normal users, if the tpuarts or bcus backend are used.
+Linux 2.4.x is not affected.
+
+With eibd you can send arbitrary telegrams on the EIB bus, which
+may destroy your EIB configuration or cause a hardware damage.
+
+The problematic operation are:
+*) writing memory
+*) writing a property
+*) writing individul addresses
+*) loading a image
+
+See the BCU SDK documentation for how to recover from errors (Chapter Usage).
+A recovery should always be possible, if you have access to the PEI
+of the BCU.
+
+----------------------------------------------------------
+
+How to use the BCU SDK is covered in the documentation.
+Parts of the BCU SDK even run on Windows using Cygwin.
+See the webpage about it.
+
+----------------------------------------------------------
+
+!! YOU SHOULD NOT RUN EIBD AS ROOT !!
+
+The only privileges, which eibd needs, are access to the bus
+interface.  For the BCU 1, you only need to grant read and write
+access on the device node (/dev/eibX) to the user running eibd. For
+all other eibd backends based on the serial driver, you need to grant
+only read and write access on /dev/ttySx. The EIBnet/IP backends
+require no privilege. The USB backend requires read and write access
+to the file representing the device in usbfs (normaly mounted at
+/proc/bus/usb) or in /dev managed by udev.
+
+contrib/linux/99-eib.rules contains a sample udev rules file, which shows 
+how to grant permissins with udev.
+
+KNXLive! (http://www.auto.tuwien.ac.at/knx/knxlive.html) contains
+since version 0.2 a EIBD setup wizard.
+
+The shell script is also part of knxconfig_0.0.2.tar.gz (available at
+http://www.auto.tuwien.ac.at/~mkoegler/index.php/knxlive), filename
+knxconfig-0.2/setup/setup-eibd.sh.
+
+It can be used as reference, how to start eibd for the various
+supported interfaces and how to run eibd as normal user.
+
+The shell script was written for the KNXLive! CD. If you intend to run
+it on a normal linux system, please take care of the folloing things:
+* The BCU SDK installation directory must be in the path
+* dialog or Xdialog must be installed
+* If you are using a BCU 1, you must load the BCU 1 driver module before.
+* The script expects, that it can executed commands as root via sudo without any password prompt.
+* The scripts grants access on /dev/ttyS0-ttyS3, /dev/eib0-eib3 and all KNX USB Interfaces to every user on the computer.
+* Status files are put under easy guessable names in /tmp
+* If you notice a problem, you should start the script in a terminal to catch all error messages
+
+Martin Koegler
+mkoegler@auto.tuwien.ac.at
+http://www.auto.tuwien.ac.at/~mkoegler/index.php/bcus

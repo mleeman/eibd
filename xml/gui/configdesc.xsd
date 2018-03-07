@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Configuration Information XML Schema
+    Copyright (C) 2005-2011 Martin Koegler mkoegler@auto.tuwien.ac.at
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    Modified version of this specification must change the namespace.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+-->
+<!-- version 0.0.0 -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.auto.tuwien.ac.at/~mkoegler/eib/xml/configdesc.xsd" targetNamespace="http://www.auto.tuwien.ac.at/~mkoegler/eib/xml/configdesc.xsd" elementFormDefault="qualified">
+  <xs:simpleType name="Version">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]+\.[0-9]+\.[0-9]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="PID">
+    <xs:restriction base="xs:ID">
+<!--*xs:string/xs:ID?-->
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="listelement">
+    <xs:restriction base="xs:string">
+<!--*-->
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="eibaddr">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(([0-9]|1[0-5])\.([0-9]|1[0-5])\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])|[0-9a-fA-F]{1,4})"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="groupaddr">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(([0-9]|[12][0-9]|3[0-1])/([0-7])/([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])|([0-9]|[12][0-9]|3[0-1])/([0-9]|[1-9][0-9]|[1-9][0-9][0-9]|1[0-9][0-9][0-9]|20[0-3][0-9]|204[0-7])|[0-9a-fA-F]{1,4})"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="pollingaddr">
+    <xs:restriction base="xs:hexBinary">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="4"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="pollingslot">
+    <xs:restriction base="xs:nonNegativeInteger">
+      <xs:maxInclusive value="15"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="pollingcount">
+    <xs:restriction base="xs:nonNegativeInteger">
+      <xs:maxInclusive value="15"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="keylevel">
+    <xs:restriction base="xs:nonNegativeInteger">
+      <xs:maxInclusive value="15"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="keytype">
+    <xs:restriction base="xs:hexBinary">
+      <xs:minLength value="1"/>
+      <xs:maxLength value="8"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="priority">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="low"/>
+      <xs:enumeration value="normal"/>
+      <xs:enumeration value="urgent"/>
+      <xs:enumeration value="system"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="DeviceConfig">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="ProgramID" type="xs:string"/>
+        <xs:element name="PhysicalAddress" type="eibaddr"/>
+	<xs:element name="InstallKey" type="keytype" minOccurs="0"/>
+        <xs:element name="Key" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:simpleContent>
+              <xs:extension base="keytype">
+                <xs:attribute name="id" type="keylevel"/>
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+        </xs:element>
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+          <xs:element name="GroupObject">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Priority" type="priority" minOccurs="0"/>
+                <xs:element name="SendAddress" type="groupaddr" minOccurs="0"/>
+                <xs:element name="ReadRequestAddress" type="groupaddr" minOccurs="0"/>
+                <xs:element name="ReceiveAddress" minOccurs="0">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="GroupAddr" type="groupaddr" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+                <xs:element name="ReadAddress" minOccurs="0">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="GroupAddr" type="groupaddr" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+                <xs:element name="UpdateAddress" minOccurs="0">
+                  <xs:complexType>
+                    <xs:sequence>
+                      <xs:element name="GroupAddr" type="groupaddr" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+              <xs:attribute name="id" type="PID"/>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="Property">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="Disable" type="xs:boolean" minOccurs="0"/>
+                <xs:element name="ReadOnly" type="xs:boolean" minOccurs="0"/>
+                <xs:element name="ReadAccess" type="keylevel" minOccurs="0"/>
+                <xs:element name="WriteAccess" type="keylevel" minOccurs="0"/>
+              </xs:sequence>
+              <xs:attribute name="id" type="PID"/>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="PollingMaster">
+            <xs:complexType>
+              <xs:sequence minOccurs="0">
+                <xs:element name="PollingAddress" type="pollingaddr"/>
+                <xs:element name="PollingCount" type="pollingcount"/>
+              </xs:sequence>
+              <xs:attribute name="id" type="PID"/>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="PollingSlave">
+            <xs:complexType>
+              <xs:sequence minOccurs="0">
+                <xs:element name="PollingAddress" type="pollingaddr"/>
+                <xs:element name="PollingSlot" type="pollingslot"/>
+              </xs:sequence>
+              <xs:attribute name="id" type="PID"/>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+        <xs:element name="Parameter" minOccurs="0">
+          <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+              <xs:element name="ListParameter">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Value" type="listelement"/>
+                  </xs:sequence>
+                  <xs:attribute name="id" type="PID"/>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="IntParameter">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Value" type="xs:integer"/>
+                  </xs:sequence>
+                  <xs:attribute name="id" type="PID"/>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="FloatParameter">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Value" type="xs:decimal"/>
+                  </xs:sequence>
+                  <xs:attribute name="id" type="PID"/>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="StringParameter">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Value" type="xs:string"/>
+                  </xs:sequence>
+                  <xs:attribute name="id" type="PID"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="version" type="Version"/>
+    </xs:complexType>
+    <xs:key name="uniqpar">
+      <xs:selector xpath="Parameter/ListParameter|Parameter/IntParameter|Parameter/FloatParameter|Parameter/StringParameter|Property|GroupObject|PollingSlave|PollingMaster"/>
+      <xs:field xpath="@id"/>
+    </xs:key>
+    <xs:key name="unikey">
+      <xs:selector xpath="Key"/>
+      <xs:field xpath="@id"/>
+    </xs:key>
+    <xs:keyref name="refkey" refer="unikey">
+      <xs:selector xpath="Property/ReadAccess|Property/WriteAccess"/>
+      <xs:field xpath="."/>
+    </xs:keyref>
+  </xs:element>
+</xs:schema>

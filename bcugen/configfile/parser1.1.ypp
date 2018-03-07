@@ -1,0 +1,848 @@
+
+
+%{
+#include "scanner.h"
+#include "stack.h"
+#include "classes.h"
+#include "map.h"
+void yyerror(char*s)
+{
+  parserError("%s",s);
+}
+Stack<void*> stack;
+Device* parser_dev;
+%}
+%union {
+long int intval;
+const char* str;
+String* string;
+double fval;
+bool bval;
+IdentMap* map;
+IdentArray* identarray;
+IdentArray* stringarray;
+IntArray* intarray;
+KeyMapArray* keymaparray;
+Expr* expr;
+Interface *Interfaces;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FunctionalBlock *FunctionalBlocks;
+
+
+
+
+
+
+
+GroupObject *GroupObjects;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Property *Propertys;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Object *Objects;
+
+
+
+
+
+
+
+
+
+
+
+PollingMaster *PollingMasters;
+
+
+
+
+
+
+
+
+PollingSlave *PollingSlaves;
+
+
+
+
+
+
+
+
+ListParameter *ListParameters;
+
+
+
+
+
+
+
+
+
+
+
+
+
+IntParameter *IntParameters;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+StringParameter *StringParameters;
+
+
+
+
+
+
+
+
+
+
+
+FloatParameter *FloatParameters;
+
+
+
+
+
+
+
+
+
+
+
+
+
+Timer *Timers;
+
+
+
+
+
+
+
+Debounce *Debounces;
+
+
+
+
+Device *Devices;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+};
+%error-verbose
+%start file;
+%token<intval> INT
+%token<str> IDENT STRING
+%token<fval> FLOAT
+%token TRUE FALSE;
+%token NEVER_OCCUR
+%token T_OR T_AND T_EQ T_NE T_GE T_LE T_RSHIFT T_LSHIFT T_IN T_CI
+%type<intval> intc
+%type<fval> floatc
+%type<map> identmap identmap1
+%type<identarray> identarray identarray1
+%type<stringarray> stringarray stringarray1
+%type<intarray> intarray intarray1
+%type<keymaparray> keymaparray keymaparray1
+%type<bval> bool;
+%type<string> string ident
+%type<expr> expr intp stringp floatp intb stringb floatb listb
+%left NEG '!' '~'
+%left '*' '/' '%'
+%left '+' '-'
+%left T_LSHIFT T_RSHIFT
+%left '<' '>' T_GE T_LE
+%left T_NE T_EQ
+%left '&'
+%left '^'
+%left '|'
+%left T_AND
+%left T_OR
+%token TOK_Interface; %type<Interfaces> Interface_body Interface_struct Interface_bodys_CI Interface_body_CI
+%token TOK_ID;
+%token TOK_Abbreviation;
+%token TOK_Title;
+%token TOK_AddInfo;
+%token TOK_GroupTitle;
+%token TOK_InvisibleIf;
+%token TOK_DPType;
+%token TOK_Reference;
+%token TOK_References;
+
+
+%token TOK_FunctionalBlock; %type<FunctionalBlocks> FunctionalBlock_body FunctionalBlock_struct FunctionalBlock_bodys_CI FunctionalBlock_body_CI
+%token TOK_ID;
+%token TOK_Title;
+%token TOK_AddInfo;
+%token TOK_ProfileID;
+
+
+
+%token TOK_GroupObject; %type<GroupObjects> GroupObject_body GroupObject_struct GroupObject_bodys_CI GroupObject_body_CI
+%token TOK_ID;
+%token TOK_Name;
+%token TOK_Type;
+%token TOK_on_update;
+%token TOK_eeprom;
+%token TOK_Sending;
+%token TOK_Receiving;
+%token TOK_Reading;
+%token TOK_Title;
+%token TOK_AddInfo;
+%token TOK_StateBased;
+
+
+
+%token TOK_Priority;
+%token TOK_SendAddress;
+%token TOK_ReadRequestAddress;
+%token TOK_ReceiveAddress;
+%token TOK_ReadAddress;
+%token TOK_UpdateAddress;
+
+%token TOK_Property; %type<Propertys> Property_body Property_struct Property_bodys_CI Property_body_CI
+%token TOK_ID;
+%token TOK_Name;
+%token TOK_Type;
+%token TOK_PropertyID;
+%token TOK_MaxArrayLength;
+%token TOK_Writeable;
+%token TOK_eeprom;
+%token TOK_handler;
+%token TOK_Title;
+%token TOK_AddInfo;
+
+%token TOK_Disable;
+%token TOK_ReadOnly;
+%token TOK_ReadAccess;
+%token TOK_WriteAccess;
+
+%token TOK_Object; %type<Objects> Object_body Object_struct Object_bodys_CI Object_body_CI
+%token TOK_ObjectIndex;
+%token TOK_Name;
+%token TOK_ObjectType;
+
+%token TOK_Title;
+%token TOK_AddInfo;
+
+
+
+
+
+%token TOK_PollingMaster; %type<PollingMasters> PollingMaster_body PollingMaster_struct PollingMaster_bodys_CI PollingMaster_body_CI
+%token TOK_ID;
+%token TOK_Name;
+%token TOK_Title;
+%token TOK_AddInfo;
+
+%token TOK_PollingAddress;
+%token TOK_PollingCount;
+
+%token TOK_PollingSlave; %type<PollingSlaves> PollingSlave_body PollingSlave_struct PollingSlave_bodys_CI PollingSlave_body_CI
+%token TOK_ID;
+%token TOK_Name;
+%token TOK_Title;
+%token TOK_AddInfo;
+
+%token TOK_PollingAddress;
+%token TOK_PollingSlot;
+
+%token TOK_ListParameter; %type<ListParameters> ListParameter_body ListParameter_struct ListParameter_bodys_CI ListParameter_body_CI
+%token TOK_ID;
+%token TOK_Name;
+%token TOK_Elements;
+%token TOK_Title;
+%token TOK_AddInfo;
+%token TOK_Default;
+%token TOK_Unit;
+%token TOK_ListElements;
+%token TOK_ListDefault;
+
+
+%token TOK_Value;
+
+%token TOK_IntParameter; %type<IntParameters> IntParameter_body IntParameter_struct IntParameter_bodys_CI IntParameter_body_CI
+%token TOK_ID;
+%token TOK_Name;
+%token TOK_MinValue;
+%token TOK_MaxValue;
+%token TOK_Title;
+%token TOK_AddInfo;
+%token TOK_Default;
+%token TOK_Unit;
+%token TOK_Precision;
+%token TOK_Increment;
+
+
+%token TOK_Value;
+
+%token TOK_StringParameter; %type<StringParameters> StringParameter_body StringParameter_struct StringParameter_bodys_CI StringParameter_body_CI
+%token TOK_ID;
+%token TOK_Name;
+%token TOK_RegExp;
+%token TOK_MaxLength;
+%token TOK_Default;
+%token TOK_Title;
+%token TOK_AddInfo;
+%token TOK_Unit;
+
+%token TOK_Value;
+
+%token TOK_FloatParameter; %type<FloatParameters> FloatParameter_body FloatParameter_struct FloatParameter_bodys_CI FloatParameter_body_CI
+%token TOK_ID;
+%token TOK_Name;
+%token TOK_MinValue;
+%token TOK_MaxValue;
+%token TOK_Title;
+%token TOK_AddInfo;
+%token TOK_Unit;
+%token TOK_Precision;
+%token TOK_Increment;
+%token TOK_Default;
+
+%token TOK_Value;
+
+%token TOK_Timer; %type<Timers> Timer_body Timer_struct Timer_bodys_CI Timer_body_CI
+%token TOK_Name;
+%token TOK_Type;
+%token TOK_Resolution;
+%token TOK_on_expire;
+
+
+
+%token TOK_Debounce; %type<Debounces> Debounce_body Debounce_struct Debounce_bodys_CI Debounce_body_CI
+%token TOK_Name;
+%token TOK_Time;
+
+
+%token TOK_Device; %type<Devices> Device_body Device_struct Device_bodys_CI Device_body_CI
+%token TOK_ProgramID;
+%token TOK_ManufacturerCode;
+%token TOK_InternalManufacturerCode;
+%token TOK_DeviceType;
+%token TOK_Version;
+%token TOK_SyncRate;
+%token TOK_PEIType;
+%token TOK_PortADDR;
+%token TOK_PortCDDR;
+%token TOK_U_DELMSG;
+%token TOK_RouteCount;
+%token TOK_BusyLimit;
+%token TOK_INAKLimit;
+%token TOK_RateLimit;
+%token TOK_CPOL;
+%token TOK_CPHA;
+%token TOK_AutoPLMA;
+%token TOK_A_Event;
+%token TOK_BCU1_SEC;
+%token TOK_BCU1_PROTECT;
+%token TOK_BCU2_PROTECT;
+%token TOK_BCU2_WATCHDOG;
+%token TOK_PLM_FAST;
+%token TOK_include;
+%token TOK_Title;
+%token TOK_AddInfo;
+%token TOK_OrderNo;
+%token TOK_Manufacturer;
+%token TOK_Category;
+%token TOK_Author;
+%token TOK_Copyright;
+
+%token TOK_Test_Addr_Count;
+%token TOK_Test_Assoc_Count;
+
+
+
+
+
+
+
+
+
+
+%token TOK_on_run;
+%token TOK_on_init;
+%token TOK_on_save;
+%token TOK_on_pei_init;
+%token TOK_on_pei_message;
+%token TOK_on_pei_cycle;
+%token TOK_on_pei_user;
+%token TOK_on_pei_rc_even;
+%token TOK_on_pei_rc_odd;
+%token TOK_on_pei_tc;
+%token TOK_on_pei_tdre;
+%token TOK_on_pei_sci_idle;
+%token TOK_on_pei_spif;
+%token TOK_on_pei_oca;
+%token TOK_on_pei_ocb;
+%token TOK_on_pei_ica;
+%token TOK_on_pei_icb;
+
+%token TOK_MaskVersion;
+
+%token TOK_BCU;
+%token TOK_Model;
+
+
+
+%token TOK_Keys;
+%token TOK_PhysicalAddress;
+%token TOK_InstallKey;
+
+%%
+intc : INT
+    | '-' intc %prec NEG { $$=-$2; }
+    | '(' intc ')' { $$= $2; }
+    | '!' intc { $$=!$2; }
+    | '~' intc { $$=~$2; }
+    | intc '*' intc { $$=$1*$3; }
+    | intc '/' intc { $$=$1/$3; }
+    | intc '%' intc { $$=$1%$3; }
+    | intc '+' intc { $$=$1+$3; }
+    | intc '-' intc { $$=$1-$3; }
+    | intc T_LSHIFT intc { $$=$1<<$3; }
+    | intc T_RSHIFT intc { $$=$1>>$3; }
+    | intc '<' intc { $$=$1<$3; }
+    | intc T_LE intc { $$=$1<=$3; }
+    | intc '>' intc { $$=$1>$3; }
+    | intc T_GE intc { $$=$1>=$3; }
+    | intc T_EQ intc { $$=$1==$3; }
+    | intc T_NE intc { $$=$1!=$3; }
+    | floatc '<' floatc { $$=$1<$3; }
+    | floatc T_LE floatc { $$=$1<=$3; }
+    | floatc '>' floatc { $$=$1>$3; }
+    | floatc T_GE floatc { $$=$1>=$3; }
+    | floatc T_EQ floatc { $$=$1==$3; }
+    | floatc T_NE floatc { $$=$1!=$3; }
+    | intc '&' intc { $$=$1&$3; }
+    | intc '^' intc { $$=$1^$3; }
+    | intc '|' intc { $$=$1|$3; }
+    | intc T_AND intc { $$=$1&&$3; }
+    | intc T_OR intc { $$=$1||$3; }
+    | intc '?' intc ':' intc { $$=$1?$3:$5; };
+floatc : FLOAT
+    | intc { $$=$1; }
+    | '-' floatc %prec NEG { $$=-$2; }
+    | '(' floatc ')' { $$= $2; }
+    | floatc '*' floatc { $$=$1*$3; }
+    | floatc '/' floatc { $$=$1/$3; }
+    | floatc '+' floatc { $$=$1+$3; }
+    | floatc '-' floatc { $$=$1-$3; }
+    | intc '?' floatc ':' floatc { $$=$1?$3:$5; };
+intp : intc { $$=new Expr; $$->i=$1; $$->Type=Expr::E_INT; }
+  | '(' intp ')' { $$=$2; }
+  | IDENT { $$=new Expr; $$->s=$1;$$->Type=Expr::E_PAR; }
+  | '-' intp %prec NEG { $$=new Expr;$$->op1=$2;$$->Type=Expr::E_NEG;}
+  | intp '+' intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_PLUS;}
+  | intp '-' intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_MINUS;}
+  | intp '/' intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_DIV;}
+  | intp '%' intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_MOD;}
+  | intp '*' intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_MUL;}
+  | bool { $$=new Expr; $$->i=$1; $$->Type=Expr::E_INT; }
+floatp : floatc { $$=new Expr; $$->f=$1; $$->Type=Expr::E_FLOAT; }
+  | '(' floatp ')' { $$=$2; }
+  | IDENT { $$=new Expr; $$->s=$1;$$->Type=Expr::E_PAR; }
+  | '-' floatp %prec NEG { $$=new Expr;$$->op1=$2;$$->Type=Expr::E_NEG;}
+  | floatp '+' floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_PLUS;}
+  | floatp '-' floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_MINUS;}
+  | floatp '/' floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_DIV;}
+  | floatp '*' floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_MUL;}
+  | intp ;
+stringp : string { $$=new Expr; $$->s=*$1; $$->Type=Expr::E_STRING; delete $1;}
+  | '(' stringp ')' { $$=$2; }
+  | IDENT { $$=new Expr; $$->s=$1;$$->Type=Expr::E_PAR; };
+stringb : stringp T_EQ stringp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_EQ;}
+  | stringp T_NE stringp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_NE;}
+  | stringp T_LE stringp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_LE;}
+  | stringp T_GE stringp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_GE;}
+  | stringp '<' stringp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_LT;}
+  | stringp '>' stringp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_GT;};
+floatb : floatp T_EQ floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_EQ;}
+  | floatp T_NE floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_NE;}
+  | floatp T_LE floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_LE;}
+  | floatp T_GE floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_GE;}
+  | floatp '<' floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_LT;}
+  | floatp '>' floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_GT;};
+intb : intp T_EQ intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_EQ;}
+  | intp T_NE intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_NE;}
+  | intp T_LE intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_LE;}
+  | intp T_GE intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_GE;}
+  | intp '<' intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_LT;}
+  | intp '>' intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_GT;}
+  | intp { $$=new Expr;$$->op1=$1;$$->Type=Expr::E_NOTNULL;};
+listb : ident T_IN '(' identarray1 ')' { $$=new Expr; $$->s=*$1;delete $1;$$->id=*$4;delete $4;$$->Type=Expr::E_IN; }
+expr : expr T_AND expr { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_AND;}
+   | '!' expr { $$=new Expr;$$->op1=$2;$$->Type=Expr::E_NOT;}
+   | '(' expr ')' { $$=$2; }
+   | expr T_OR expr { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_OR;}
+   | intb | floatb | listb | stringb ;
+string : STRING {$$=unescapeString($1); } | string STRING { String* n=unescapeString($2); (*$1)+=*n;delete n; } ;
+ident : IDENT {$$=new String($1); };
+bool : TRUE { $$=1; } | FALSE { $$=0; };
+identmap1 : { $$=new IdentMap; } | identmap1 ident '=' string ';' {Map m;m.Name=*$2; m.Value=*$4;delete $2; delete $4; $1->add(m); $$=$1; }
+identmap : '{' identmap1 '}' { $$=$2;} ;
+keymaparray1 : intc '=' intc { $$=new KeyMapArray; $$->add(KeyMap($1,$3)); } | keymaparray1 ',' intc '=' intc {$1->add(KeyMap($3,$5)); $$=$1; }
+intarray1 : intc { $$=new IntArray; $$->add($1); } | intarray1 ',' intc {$1->add($3); $$=$1; }
+identarray1 : ident { $$=new IdentArray; $$->add(*$1); delete $1; } | identarray1 ',' ident {$1->add(*$3); delete $3; $$=$1; }
+stringarray1 : string { $$=new StringArray; $$->add(*$1); delete $1; } | stringarray1 ',' ident {$1->add(*$3); delete $3; $$=$1; }
+ebs : ',' | ;
+intarray : '{' '}' {$$=new IntArray; }
+ | '{' intarray1 ebs '}' { $$=$2;} ;
+keymaparray : '{' '}' {$$=new KeyMapArray; }
+ | '{' keymaparray1 ebs '}' { $$=$2;} ;
+identarray : '{' '}' {$$=new IdentArray; }
+ | '{' identarray1 ebs '}' { $$=$2;} ;
+stringarray : '{' '}' {$$=new StringArray; }
+ | '{' stringarray1 ebs '}' { $$=$2;} ;
+Begin_CI : T_CI '{' ;
+End_CI : '}' ';' ;
+Empty_CI : T_CI '{' '}' ';'
+Interface_struct : TOK_Interface '{' { Interface* a=new Interface;stack.push(a);a->lineno=yylineno; } Interface_bodys '}' ';' {$$=(typeof($$))stack.pop();} ; Interface_bodys : | Interface_body Interface_bodys ; Interface_body : Interface_bodys_CI | Empty_CI |
+TOK_Abbreviation ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Abbreviation_lineno)parserError(_("%s already set at line %d"),"Abbreviation",a->Abbreviation_lineno);a->Abbreviation_lineno=yylineno;; a->Abbreviation=*$2; delete $2;}|
+TOK_Title string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Title_lineno)parserError(_("%s already set at line %d"),"Title",a->Title_lineno);a->Title_lineno=yylineno;; a->Title=*$2; delete $2;} |
+TOK_AddInfo string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->AddInfo_lineno)parserError(_("%s already set at line %d"),"AddInfo",a->AddInfo_lineno);a->AddInfo_lineno=yylineno;; a->AddInfo=*$2; delete $2;} |
+TOK_GroupTitle string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->GroupTitle_lineno)parserError(_("%s already set at line %d"),"GroupTitle",a->GroupTitle_lineno);a->GroupTitle_lineno=yylineno;; a->GroupTitle=*$2; delete $2;} |
+TOK_InvisibleIf expr ';' { typeof($$) a =(typeof($$))(stack.top()); if(a->InvisibleIf_lineno)parserError(_("%s already set at line %d"),"InvisibleIf",a->InvisibleIf_lineno);a->InvisibleIf_lineno=yylineno;; a->InvisibleIf=$2; }|
+TOK_DPType floatc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->DPType_lineno)parserError(_("%s already set at line %d"),"DPType",a->DPType_lineno);a->DPType_lineno=yylineno;; a->DPType=$2;}| TOK_DPType ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->DPType_lineno)parserError(_("%s already set at line %d"),"DPType",a->DPType_lineno);a->DPType_lineno=yylineno;; a->DPType=Map_DPType(*$2);delete $2;}|
+TOK_Reference identarray ';' { typeof($$) a =(typeof($$))(stack.top()); if(a->Reference_lineno)parserError(_("%s already set at line %d"),"Reference",a->Reference_lineno);a->Reference_lineno=yylineno;; a->Reference=*$2; delete $2; }|
+NEVER_OCCUR { $$; } ; Interface_bodys_CI : Begin_CI Interface_bodys_CI_i End_CI { $$; } ; Interface_bodys_CI_i : Interface_body_CI | Interface_body_CI Interface_bodys_CI_i; Interface_body_CI :
+NEVER_OCCUR { $$; } ;
+FunctionalBlock_struct : TOK_FunctionalBlock '{' { FunctionalBlock* a=new FunctionalBlock;stack.push(a);a->lineno=yylineno; } FunctionalBlock_bodys '}' ';' {$$=(typeof($$))stack.pop();} ; FunctionalBlock_bodys : | FunctionalBlock_body FunctionalBlock_bodys ; FunctionalBlock_body : FunctionalBlock_bodys_CI | Empty_CI |
+TOK_Title string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Title_lineno)parserError(_("%s already set at line %d"),"Title",a->Title_lineno);a->Title_lineno=yylineno;; a->Title=*$2; delete $2;} |
+TOK_AddInfo string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->AddInfo_lineno)parserError(_("%s already set at line %d"),"AddInfo",a->AddInfo_lineno);a->AddInfo_lineno=yylineno;; a->AddInfo=*$2; delete $2;} |
+TOK_ProfileID intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->ProfileID_lineno)parserError(_("%s already set at line %d"),"ProfileID",a->ProfileID_lineno);a->ProfileID_lineno=yylineno;; a->ProfileID=$2;}| TOK_ProfileID ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->ProfileID_lineno)parserError(_("%s already set at line %d"),"ProfileID",a->ProfileID_lineno);a->ProfileID_lineno=yylineno;; a->ProfileID=Map_ProfileID(*$2);delete $2;}|
+Interface_struct { typeof($$) a =(typeof($$))(stack.top()); a->Interfaces.add(*$1); delete $1; }|
+NEVER_OCCUR { $$; } ; FunctionalBlock_bodys_CI : Begin_CI FunctionalBlock_bodys_CI_i End_CI { $$; } ; FunctionalBlock_bodys_CI_i : FunctionalBlock_body_CI | FunctionalBlock_body_CI FunctionalBlock_bodys_CI_i; FunctionalBlock_body_CI :
+NEVER_OCCUR { $$; } ;
+GroupObject_struct : TOK_GroupObject '{' { GroupObject* a=new GroupObject;stack.push(a);a->lineno=yylineno; } GroupObject_bodys '}' ';' {$$=(typeof($$))stack.pop();} ; GroupObject_bodys : | GroupObject_body GroupObject_bodys ; GroupObject_body : GroupObject_bodys_CI | Empty_CI |
+TOK_Name ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Name_lineno)parserError(_("%s already set at line %d"),"Name",a->Name_lineno);a->Name_lineno=yylineno;; a->Name=*$2; delete $2;}|
+TOK_Type ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Type_lineno)parserError(_("%s already set at line %d"),"Type",a->Type_lineno);a->Type_lineno=yylineno;; a->Type=Map_GroupType(*$2);delete $2;}|
+TOK_on_update ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_update_lineno)parserError(_("%s already set at line %d"),"on_update",a->on_update_lineno);a->on_update_lineno=yylineno;; a->on_update=*$2; delete $2;}|
+TOK_eeprom bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->eeprom_lineno)parserError(_("%s already set at line %d"),"eeprom",a->eeprom_lineno);a->eeprom_lineno=yylineno;; a->eeprom=$2;}|
+TOK_Sending bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Sending_lineno)parserError(_("%s already set at line %d"),"Sending",a->Sending_lineno);a->Sending_lineno=yylineno;; a->Sending=$2;}|
+TOK_Receiving bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Receiving_lineno)parserError(_("%s already set at line %d"),"Receiving",a->Receiving_lineno);a->Receiving_lineno=yylineno;; a->Receiving=$2;}|
+TOK_Reading bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Reading_lineno)parserError(_("%s already set at line %d"),"Reading",a->Reading_lineno);a->Reading_lineno=yylineno;; a->Reading=$2;}|
+TOK_Title string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Title_lineno)parserError(_("%s already set at line %d"),"Title",a->Title_lineno);a->Title_lineno=yylineno;; a->Title=*$2; delete $2;} |
+TOK_AddInfo string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->AddInfo_lineno)parserError(_("%s already set at line %d"),"AddInfo",a->AddInfo_lineno);a->AddInfo_lineno=yylineno;; a->AddInfo=*$2; delete $2;} |
+TOK_StateBased bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->StateBased_lineno)parserError(_("%s already set at line %d"),"StateBased",a->StateBased_lineno);a->StateBased_lineno=yylineno;; a->StateBased=$2;}|
+
+
+NEVER_OCCUR { $$; } ; GroupObject_bodys_CI : Begin_CI GroupObject_bodys_CI_i End_CI { $$; } ; GroupObject_bodys_CI_i : GroupObject_body_CI | GroupObject_body_CI GroupObject_bodys_CI_i; GroupObject_body_CI :
+TOK_Priority ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Priority_lineno)parserError(_("%s already set at line %d"),"Priority",a->Priority_lineno);a->Priority_lineno=yylineno;; a->Priority=Map_Prio(*$2);delete $2;}|
+TOK_SendAddress intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->SendAddress_lineno)parserError(_("%s already set at line %d"),"SendAddress",a->SendAddress_lineno);a->SendAddress_lineno=yylineno;; a->SendAddress=$2;}|
+TOK_ReadRequestAddress intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->ReadRequestAddress_lineno)parserError(_("%s already set at line %d"),"ReadRequestAddress",a->ReadRequestAddress_lineno);a->ReadRequestAddress_lineno=yylineno;; a->ReadRequestAddress=$2;}|
+TOK_ReceiveAddress intarray ';' { typeof($$) a =(typeof($$))(stack.top()); if(a->ReceiveAddress_lineno)parserError(_("%s already set at line %d"),"ReceiveAddress",a->ReceiveAddress_lineno);a->ReceiveAddress_lineno=yylineno;; a->ReceiveAddress=*$2; delete $2; }|
+TOK_ReadAddress intarray ';' { typeof($$) a =(typeof($$))(stack.top()); if(a->ReadAddress_lineno)parserError(_("%s already set at line %d"),"ReadAddress",a->ReadAddress_lineno);a->ReadAddress_lineno=yylineno;; a->ReadAddress=*$2; delete $2; }|
+TOK_UpdateAddress intarray ';' { typeof($$) a =(typeof($$))(stack.top()); if(a->UpdateAddress_lineno)parserError(_("%s already set at line %d"),"UpdateAddress",a->UpdateAddress_lineno);a->UpdateAddress_lineno=yylineno;; a->UpdateAddress=*$2; delete $2; }|
+NEVER_OCCUR { $$; } ;
+Property_struct : TOK_Property '{' { Property* a=new Property;stack.push(a);a->lineno=yylineno; } Property_bodys '}' ';' {$$=(typeof($$))stack.pop();} ; Property_bodys : | Property_body Property_bodys ; Property_body : Property_bodys_CI | Empty_CI |
+TOK_Name ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Name_lineno)parserError(_("%s already set at line %d"),"Name",a->Name_lineno);a->Name_lineno=yylineno;; a->Name=*$2; delete $2;}|
+TOK_Type ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Type_lineno)parserError(_("%s already set at line %d"),"Type",a->Type_lineno);a->Type_lineno=yylineno;; a->Type=Map_PropertyType(*$2);delete $2;}|
+TOK_PropertyID intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->PropertyID_lineno)parserError(_("%s already set at line %d"),"PropertyID",a->PropertyID_lineno);a->PropertyID_lineno=yylineno;; a->PropertyID=$2;}| TOK_PropertyID ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->PropertyID_lineno)parserError(_("%s already set at line %d"),"PropertyID",a->PropertyID_lineno);a->PropertyID_lineno=yylineno;; a->PropertyID=Map_PropertyID(*$2);delete $2;}|
+TOK_MaxArrayLength intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->MaxArrayLength_lineno)parserError(_("%s already set at line %d"),"MaxArrayLength",a->MaxArrayLength_lineno);a->MaxArrayLength_lineno=yylineno;; a->MaxArrayLength=$2;}|
+TOK_Writeable bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Writeable_lineno)parserError(_("%s already set at line %d"),"Writeable",a->Writeable_lineno);a->Writeable_lineno=yylineno;; a->Writeable=$2;}|
+TOK_eeprom bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->eeprom_lineno)parserError(_("%s already set at line %d"),"eeprom",a->eeprom_lineno);a->eeprom_lineno=yylineno;; a->eeprom=$2;}|
+TOK_handler ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->handler_lineno)parserError(_("%s already set at line %d"),"handler",a->handler_lineno);a->handler_lineno=yylineno;; a->handler=*$2; delete $2;}|
+TOK_Title string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Title_lineno)parserError(_("%s already set at line %d"),"Title",a->Title_lineno);a->Title_lineno=yylineno;; a->Title=*$2; delete $2;} |
+TOK_AddInfo string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->AddInfo_lineno)parserError(_("%s already set at line %d"),"AddInfo",a->AddInfo_lineno);a->AddInfo_lineno=yylineno;; a->AddInfo=*$2; delete $2;} |
+NEVER_OCCUR { $$; } ; Property_bodys_CI : Begin_CI Property_bodys_CI_i End_CI { $$; } ; Property_bodys_CI_i : Property_body_CI | Property_body_CI Property_bodys_CI_i; Property_body_CI :
+TOK_Disable bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Disable_lineno)parserError(_("%s already set at line %d"),"Disable",a->Disable_lineno);a->Disable_lineno=yylineno;; a->Disable=$2;}|
+TOK_ReadOnly bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->ReadOnly_lineno)parserError(_("%s already set at line %d"),"ReadOnly",a->ReadOnly_lineno);a->ReadOnly_lineno=yylineno;; a->ReadOnly=$2;}|
+TOK_ReadAccess intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->ReadAccess_lineno)parserError(_("%s already set at line %d"),"ReadAccess",a->ReadAccess_lineno);a->ReadAccess_lineno=yylineno;; a->ReadAccess=$2;}|
+TOK_WriteAccess intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->WriteAccess_lineno)parserError(_("%s already set at line %d"),"WriteAccess",a->WriteAccess_lineno);a->WriteAccess_lineno=yylineno;; a->WriteAccess=$2;}|
+NEVER_OCCUR { $$; } ;
+Object_struct : TOK_Object '{' { Object* a=new Object;stack.push(a);a->lineno=yylineno; } Object_bodys '}' ';' {$$=(typeof($$))stack.pop();} ; Object_bodys : | Object_body Object_bodys ; Object_body : Object_bodys_CI | Empty_CI |
+TOK_Name ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Name_lineno)parserError(_("%s already set at line %d"),"Name",a->Name_lineno);a->Name_lineno=yylineno;; a->Name=*$2; delete $2;}|
+TOK_ObjectType intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->ObjectType_lineno)parserError(_("%s already set at line %d"),"ObjectType",a->ObjectType_lineno);a->ObjectType_lineno=yylineno;; a->ObjectType=$2;}| TOK_ObjectType ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->ObjectType_lineno)parserError(_("%s already set at line %d"),"ObjectType",a->ObjectType_lineno);a->ObjectType_lineno=yylineno;; a->ObjectType=Map_ObjectType(*$2);delete $2;}|
+Property_struct { typeof($$) a =(typeof($$))(stack.top()); a->Propertys.add(*$1); delete $1; }|
+TOK_Title string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Title_lineno)parserError(_("%s already set at line %d"),"Title",a->Title_lineno);a->Title_lineno=yylineno;; a->Title=*$2; delete $2;} |
+TOK_AddInfo string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->AddInfo_lineno)parserError(_("%s already set at line %d"),"AddInfo",a->AddInfo_lineno);a->AddInfo_lineno=yylineno;; a->AddInfo=*$2; delete $2;} |
+
+
+
+NEVER_OCCUR { $$; } ; Object_bodys_CI : Begin_CI Object_bodys_CI_i End_CI { $$; } ; Object_bodys_CI_i : Object_body_CI | Object_body_CI Object_bodys_CI_i; Object_body_CI :
+NEVER_OCCUR { $$; } ;
+PollingMaster_struct : TOK_PollingMaster '{' { PollingMaster* a=new PollingMaster;stack.push(a);a->lineno=yylineno; } PollingMaster_bodys '}' ';' {$$=(typeof($$))stack.pop();} ; PollingMaster_bodys : | PollingMaster_body PollingMaster_bodys ; PollingMaster_body : PollingMaster_bodys_CI | Empty_CI |
+TOK_Name ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Name_lineno)parserError(_("%s already set at line %d"),"Name",a->Name_lineno);a->Name_lineno=yylineno;; a->Name=*$2; delete $2;}|
+TOK_Title string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Title_lineno)parserError(_("%s already set at line %d"),"Title",a->Title_lineno);a->Title_lineno=yylineno;; a->Title=*$2; delete $2;} |
+TOK_AddInfo string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->AddInfo_lineno)parserError(_("%s already set at line %d"),"AddInfo",a->AddInfo_lineno);a->AddInfo_lineno=yylineno;; a->AddInfo=*$2; delete $2;} |
+NEVER_OCCUR { $$; } ; PollingMaster_bodys_CI : Begin_CI PollingMaster_bodys_CI_i End_CI { $$; } ; PollingMaster_bodys_CI_i : PollingMaster_body_CI | PollingMaster_body_CI PollingMaster_bodys_CI_i; PollingMaster_body_CI :
+TOK_PollingAddress intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->PollingAddress_lineno)parserError(_("%s already set at line %d"),"PollingAddress",a->PollingAddress_lineno);a->PollingAddress_lineno=yylineno;; a->PollingAddress=$2;}|
+TOK_PollingCount intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->PollingCount_lineno)parserError(_("%s already set at line %d"),"PollingCount",a->PollingCount_lineno);a->PollingCount_lineno=yylineno;; a->PollingCount=$2;}|
+NEVER_OCCUR { $$; } ;
+PollingSlave_struct : TOK_PollingSlave '{' { PollingSlave* a=new PollingSlave;stack.push(a);a->lineno=yylineno; } PollingSlave_bodys '}' ';' {$$=(typeof($$))stack.pop();} ; PollingSlave_bodys : | PollingSlave_body PollingSlave_bodys ; PollingSlave_body : PollingSlave_bodys_CI | Empty_CI |
+TOK_Name ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Name_lineno)parserError(_("%s already set at line %d"),"Name",a->Name_lineno);a->Name_lineno=yylineno;; a->Name=*$2; delete $2;}|
+TOK_Title string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Title_lineno)parserError(_("%s already set at line %d"),"Title",a->Title_lineno);a->Title_lineno=yylineno;; a->Title=*$2; delete $2;} |
+TOK_AddInfo string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->AddInfo_lineno)parserError(_("%s already set at line %d"),"AddInfo",a->AddInfo_lineno);a->AddInfo_lineno=yylineno;; a->AddInfo=*$2; delete $2;} |
+NEVER_OCCUR { $$; } ; PollingSlave_bodys_CI : Begin_CI PollingSlave_bodys_CI_i End_CI { $$; } ; PollingSlave_bodys_CI_i : PollingSlave_body_CI | PollingSlave_body_CI PollingSlave_bodys_CI_i; PollingSlave_body_CI :
+TOK_PollingAddress intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->PollingAddress_lineno)parserError(_("%s already set at line %d"),"PollingAddress",a->PollingAddress_lineno);a->PollingAddress_lineno=yylineno;; a->PollingAddress=$2;}|
+TOK_PollingSlot intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->PollingSlot_lineno)parserError(_("%s already set at line %d"),"PollingSlot",a->PollingSlot_lineno);a->PollingSlot_lineno=yylineno;; a->PollingSlot=$2;}|
+NEVER_OCCUR { $$; } ;
+ListParameter_struct : TOK_ListParameter '{' { ListParameter* a=new ListParameter;stack.push(a);a->lineno=yylineno; } ListParameter_bodys '}' ';' {$$=(typeof($$))stack.pop();} ; ListParameter_bodys : | ListParameter_body ListParameter_bodys ; ListParameter_body : ListParameter_bodys_CI | Empty_CI |
+TOK_Name ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Name_lineno)parserError(_("%s already set at line %d"),"Name",a->Name_lineno);a->Name_lineno=yylineno;; a->Name=*$2; delete $2;}|
+TOK_Elements identmap ';' { typeof($$) a =(typeof($$))(stack.top()); if(a->Elements_lineno)parserError(_("%s already set at line %d"),"Elements",a->Elements_lineno);a->Elements_lineno=yylineno;; a->Elements=*$2; delete $2; }|
+TOK_Title string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Title_lineno)parserError(_("%s already set at line %d"),"Title",a->Title_lineno);a->Title_lineno=yylineno;; a->Title=*$2; delete $2;} |
+TOK_AddInfo string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->AddInfo_lineno)parserError(_("%s already set at line %d"),"AddInfo",a->AddInfo_lineno);a->AddInfo_lineno=yylineno;; a->AddInfo=*$2; delete $2;} |
+TOK_Default ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Default_lineno)parserError(_("%s already set at line %d"),"Default",a->Default_lineno);a->Default_lineno=yylineno;; a->Default=*$2; delete $2;}|
+TOK_Unit string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Unit_lineno)parserError(_("%s already set at line %d"),"Unit",a->Unit_lineno);a->Unit_lineno=yylineno;; a->Unit=*$2; delete $2;} |
+
+NEVER_OCCUR { $$; } ; ListParameter_bodys_CI : Begin_CI ListParameter_bodys_CI_i End_CI { $$; } ; ListParameter_bodys_CI_i : ListParameter_body_CI | ListParameter_body_CI ListParameter_bodys_CI_i; ListParameter_body_CI :
+TOK_Value ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Value_lineno)parserError(_("%s already set at line %d"),"Value",a->Value_lineno);a->Value_lineno=yylineno;; a->Value=*$2; delete $2;}|
+NEVER_OCCUR { $$; } ;
+IntParameter_struct : TOK_IntParameter '{' { IntParameter* a=new IntParameter;stack.push(a);a->lineno=yylineno; } IntParameter_bodys '}' ';' {$$=(typeof($$))stack.pop();} ; IntParameter_bodys : | IntParameter_body IntParameter_bodys ; IntParameter_body : IntParameter_bodys_CI | Empty_CI |
+TOK_Name ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Name_lineno)parserError(_("%s already set at line %d"),"Name",a->Name_lineno);a->Name_lineno=yylineno;; a->Name=*$2; delete $2;}|
+TOK_MinValue intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->MinValue_lineno)parserError(_("%s already set at line %d"),"MinValue",a->MinValue_lineno);a->MinValue_lineno=yylineno;; a->MinValue=$2;}|
+TOK_MaxValue intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->MaxValue_lineno)parserError(_("%s already set at line %d"),"MaxValue",a->MaxValue_lineno);a->MaxValue_lineno=yylineno;; a->MaxValue=$2;}|
+TOK_Title string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Title_lineno)parserError(_("%s already set at line %d"),"Title",a->Title_lineno);a->Title_lineno=yylineno;; a->Title=*$2; delete $2;} |
+TOK_AddInfo string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->AddInfo_lineno)parserError(_("%s already set at line %d"),"AddInfo",a->AddInfo_lineno);a->AddInfo_lineno=yylineno;; a->AddInfo=*$2; delete $2;} |
+TOK_Default intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Default_lineno)parserError(_("%s already set at line %d"),"Default",a->Default_lineno);a->Default_lineno=yylineno;; a->Default=$2;}|
+TOK_Unit string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Unit_lineno)parserError(_("%s already set at line %d"),"Unit",a->Unit_lineno);a->Unit_lineno=yylineno;; a->Unit=*$2; delete $2;} |
+TOK_Precision intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Precision_lineno)parserError(_("%s already set at line %d"),"Precision",a->Precision_lineno);a->Precision_lineno=yylineno;; a->Precision=$2;}|
+TOK_Increment intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Increment_lineno)parserError(_("%s already set at line %d"),"Increment",a->Increment_lineno);a->Increment_lineno=yylineno;; a->Increment=$2;}|
+
+NEVER_OCCUR { $$; } ; IntParameter_bodys_CI : Begin_CI IntParameter_bodys_CI_i End_CI { $$; } ; IntParameter_bodys_CI_i : IntParameter_body_CI | IntParameter_body_CI IntParameter_bodys_CI_i; IntParameter_body_CI :
+TOK_Value intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Value_lineno)parserError(_("%s already set at line %d"),"Value",a->Value_lineno);a->Value_lineno=yylineno;; a->Value=$2;}|
+NEVER_OCCUR { $$; } ;
+StringParameter_struct : TOK_StringParameter '{' { StringParameter* a=new StringParameter;stack.push(a);a->lineno=yylineno; } StringParameter_bodys '}' ';' {$$=(typeof($$))stack.pop();} ; StringParameter_bodys : | StringParameter_body StringParameter_bodys ; StringParameter_body : StringParameter_bodys_CI | Empty_CI |
+TOK_Name ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Name_lineno)parserError(_("%s already set at line %d"),"Name",a->Name_lineno);a->Name_lineno=yylineno;; a->Name=*$2; delete $2;}|
+TOK_RegExp string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->RegExp_lineno)parserError(_("%s already set at line %d"),"RegExp",a->RegExp_lineno);a->RegExp_lineno=yylineno;; a->RegExp=*$2; delete $2;} |
+TOK_MaxLength intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->MaxLength_lineno)parserError(_("%s already set at line %d"),"MaxLength",a->MaxLength_lineno);a->MaxLength_lineno=yylineno;; a->MaxLength=$2;}|
+TOK_Default string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Default_lineno)parserError(_("%s already set at line %d"),"Default",a->Default_lineno);a->Default_lineno=yylineno;; a->Default=*$2; delete $2;} |
+TOK_Title string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Title_lineno)parserError(_("%s already set at line %d"),"Title",a->Title_lineno);a->Title_lineno=yylineno;; a->Title=*$2; delete $2;} |
+TOK_AddInfo string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->AddInfo_lineno)parserError(_("%s already set at line %d"),"AddInfo",a->AddInfo_lineno);a->AddInfo_lineno=yylineno;; a->AddInfo=*$2; delete $2;} |
+TOK_Unit string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Unit_lineno)parserError(_("%s already set at line %d"),"Unit",a->Unit_lineno);a->Unit_lineno=yylineno;; a->Unit=*$2; delete $2;} |
+NEVER_OCCUR { $$; } ; StringParameter_bodys_CI : Begin_CI StringParameter_bodys_CI_i End_CI { $$; } ; StringParameter_bodys_CI_i : StringParameter_body_CI | StringParameter_body_CI StringParameter_bodys_CI_i; StringParameter_body_CI :
+TOK_Value string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Value_lineno)parserError(_("%s already set at line %d"),"Value",a->Value_lineno);a->Value_lineno=yylineno;; a->Value=*$2; delete $2;} |
+NEVER_OCCUR { $$; } ;
+FloatParameter_struct : TOK_FloatParameter '{' { FloatParameter* a=new FloatParameter;stack.push(a);a->lineno=yylineno; } FloatParameter_bodys '}' ';' {$$=(typeof($$))stack.pop();} ; FloatParameter_bodys : | FloatParameter_body FloatParameter_bodys ; FloatParameter_body : FloatParameter_bodys_CI | Empty_CI |
+TOK_Name ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Name_lineno)parserError(_("%s already set at line %d"),"Name",a->Name_lineno);a->Name_lineno=yylineno;; a->Name=*$2; delete $2;}|
+TOK_MinValue floatc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->MinValue_lineno)parserError(_("%s already set at line %d"),"MinValue",a->MinValue_lineno);a->MinValue_lineno=yylineno;; a->MinValue=$2;}|
+TOK_MaxValue floatc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->MaxValue_lineno)parserError(_("%s already set at line %d"),"MaxValue",a->MaxValue_lineno);a->MaxValue_lineno=yylineno;; a->MaxValue=$2;}|
+TOK_Title string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Title_lineno)parserError(_("%s already set at line %d"),"Title",a->Title_lineno);a->Title_lineno=yylineno;; a->Title=*$2; delete $2;} |
+TOK_AddInfo string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->AddInfo_lineno)parserError(_("%s already set at line %d"),"AddInfo",a->AddInfo_lineno);a->AddInfo_lineno=yylineno;; a->AddInfo=*$2; delete $2;} |
+TOK_Unit string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Unit_lineno)parserError(_("%s already set at line %d"),"Unit",a->Unit_lineno);a->Unit_lineno=yylineno;; a->Unit=*$2; delete $2;} |
+TOK_Precision floatc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Precision_lineno)parserError(_("%s already set at line %d"),"Precision",a->Precision_lineno);a->Precision_lineno=yylineno;; a->Precision=$2;}|
+TOK_Increment floatc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Increment_lineno)parserError(_("%s already set at line %d"),"Increment",a->Increment_lineno);a->Increment_lineno=yylineno;; a->Increment=$2;}|
+TOK_Default floatc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Default_lineno)parserError(_("%s already set at line %d"),"Default",a->Default_lineno);a->Default_lineno=yylineno;; a->Default=$2;}|
+NEVER_OCCUR { $$; } ; FloatParameter_bodys_CI : Begin_CI FloatParameter_bodys_CI_i End_CI { $$; } ; FloatParameter_bodys_CI_i : FloatParameter_body_CI | FloatParameter_body_CI FloatParameter_bodys_CI_i; FloatParameter_body_CI :
+TOK_Value floatc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Value_lineno)parserError(_("%s already set at line %d"),"Value",a->Value_lineno);a->Value_lineno=yylineno;; a->Value=$2;}|
+NEVER_OCCUR { $$; } ;
+Timer_struct : TOK_Timer '{' { Timer* a=new Timer;stack.push(a);a->lineno=yylineno; } Timer_bodys '}' ';' {$$=(typeof($$))stack.pop();} ; Timer_bodys : | Timer_body Timer_bodys ; Timer_body : Timer_bodys_CI | Empty_CI |
+TOK_Name ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Name_lineno)parserError(_("%s already set at line %d"),"Name",a->Name_lineno);a->Name_lineno=yylineno;; a->Name=*$2; delete $2;}|
+TOK_Type ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Type_lineno)parserError(_("%s already set at line %d"),"Type",a->Type_lineno);a->Type_lineno=yylineno;; a->Type=Map_TimerType(*$2);delete $2;}|
+TOK_Resolution ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Resolution_lineno)parserError(_("%s already set at line %d"),"Resolution",a->Resolution_lineno);a->Resolution_lineno=yylineno;; a->Resolution=Map_TimerResType(*$2);delete $2;}|
+TOK_on_expire ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_expire_lineno)parserError(_("%s already set at line %d"),"on_expire",a->on_expire_lineno);a->on_expire_lineno=yylineno;; a->on_expire=*$2; delete $2;}|
+
+NEVER_OCCUR { $$; } ; Timer_bodys_CI : Begin_CI Timer_bodys_CI_i End_CI { $$; } ; Timer_bodys_CI_i : Timer_body_CI | Timer_body_CI Timer_bodys_CI_i; Timer_body_CI :
+NEVER_OCCUR { $$; } ;
+Debounce_struct : TOK_Debounce '{' { Debounce* a=new Debounce;stack.push(a);a->lineno=yylineno; } Debounce_bodys '}' ';' {$$=(typeof($$))stack.pop();} ; Debounce_bodys : | Debounce_body Debounce_bodys ; Debounce_body : Debounce_bodys_CI | Empty_CI |
+TOK_Name ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Name_lineno)parserError(_("%s already set at line %d"),"Name",a->Name_lineno);a->Name_lineno=yylineno;; a->Name=*$2; delete $2;}|
+TOK_Time floatc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Time_lineno)parserError(_("%s already set at line %d"),"Time",a->Time_lineno);a->Time_lineno=yylineno;; a->Time=$2;}|
+NEVER_OCCUR { $$; } ; Debounce_bodys_CI : Begin_CI Debounce_bodys_CI_i End_CI { $$; } ; Debounce_bodys_CI_i : Debounce_body_CI | Debounce_body_CI Debounce_bodys_CI_i; Debounce_body_CI :
+NEVER_OCCUR { $$; } ;
+Device_struct : TOK_Device '{' { Device* a=new Device;stack.push(a);a->lineno=yylineno; } Device_bodys '}' ';' {$$=(typeof($$))stack.pop();} ; Device_bodys : | Device_body Device_bodys ; Device_body : Device_bodys_CI | Empty_CI |
+TOK_ManufacturerCode intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->ManufacturerCode_lineno)parserError(_("%s already set at line %d"),"ManufacturerCode",a->ManufacturerCode_lineno);a->ManufacturerCode_lineno=yylineno;; a->ManufacturerCode=$2;}|
+TOK_InternalManufacturerCode intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->InternalManufacturerCode_lineno)parserError(_("%s already set at line %d"),"InternalManufacturerCode",a->InternalManufacturerCode_lineno);a->InternalManufacturerCode_lineno=yylineno;; a->InternalManufacturerCode=$2;}|
+TOK_DeviceType intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->DeviceType_lineno)parserError(_("%s already set at line %d"),"DeviceType",a->DeviceType_lineno);a->DeviceType_lineno=yylineno;; a->DeviceType=$2;}|
+TOK_Version intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Version_lineno)parserError(_("%s already set at line %d"),"Version",a->Version_lineno);a->Version_lineno=yylineno;; a->Version=$2;}|
+TOK_SyncRate intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->SyncRate_lineno)parserError(_("%s already set at line %d"),"SyncRate",a->SyncRate_lineno);a->SyncRate_lineno=yylineno;; a->SyncRate=$2;}|
+TOK_PEIType intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->PEIType_lineno)parserError(_("%s already set at line %d"),"PEIType",a->PEIType_lineno);a->PEIType_lineno=yylineno;; a->PEIType=$2;}|
+TOK_PortADDR intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->PortADDR_lineno)parserError(_("%s already set at line %d"),"PortADDR",a->PortADDR_lineno);a->PortADDR_lineno=yylineno;; a->PortADDR=$2;}|
+TOK_PortCDDR intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->PortCDDR_lineno)parserError(_("%s already set at line %d"),"PortCDDR",a->PortCDDR_lineno);a->PortCDDR_lineno=yylineno;; a->PortCDDR=$2;}|
+TOK_U_DELMSG bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->U_DELMSG_lineno)parserError(_("%s already set at line %d"),"U_DELMSG",a->U_DELMSG_lineno);a->U_DELMSG_lineno=yylineno;; a->U_DELMSG=$2;}|
+TOK_RouteCount intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->RouteCount_lineno)parserError(_("%s already set at line %d"),"RouteCount",a->RouteCount_lineno);a->RouteCount_lineno=yylineno;; a->RouteCount=$2;}|
+TOK_BusyLimit intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->BusyLimit_lineno)parserError(_("%s already set at line %d"),"BusyLimit",a->BusyLimit_lineno);a->BusyLimit_lineno=yylineno;; a->BusyLimit=$2;}|
+TOK_INAKLimit intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->INAKLimit_lineno)parserError(_("%s already set at line %d"),"INAKLimit",a->INAKLimit_lineno);a->INAKLimit_lineno=yylineno;; a->INAKLimit=$2;}|
+TOK_RateLimit intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->RateLimit_lineno)parserError(_("%s already set at line %d"),"RateLimit",a->RateLimit_lineno);a->RateLimit_lineno=yylineno;; a->RateLimit=$2;}|
+TOK_CPOL bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->CPOL_lineno)parserError(_("%s already set at line %d"),"CPOL",a->CPOL_lineno);a->CPOL_lineno=yylineno;; a->CPOL=$2;}|
+TOK_CPHA bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->CPHA_lineno)parserError(_("%s already set at line %d"),"CPHA",a->CPHA_lineno);a->CPHA_lineno=yylineno;; a->CPHA=$2;}|
+TOK_AutoPLMA bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->AutoPLMA_lineno)parserError(_("%s already set at line %d"),"AutoPLMA",a->AutoPLMA_lineno);a->AutoPLMA_lineno=yylineno;; a->AutoPLMA=$2;}|
+TOK_A_Event bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->A_Event_lineno)parserError(_("%s already set at line %d"),"A_Event",a->A_Event_lineno);a->A_Event_lineno=yylineno;; a->A_Event=$2;}|
+TOK_BCU1_SEC bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->BCU1_SEC_lineno)parserError(_("%s already set at line %d"),"BCU1_SEC",a->BCU1_SEC_lineno);a->BCU1_SEC_lineno=yylineno;; a->BCU1_SEC=$2;}|
+TOK_BCU1_PROTECT bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->BCU1_PROTECT_lineno)parserError(_("%s already set at line %d"),"BCU1_PROTECT",a->BCU1_PROTECT_lineno);a->BCU1_PROTECT_lineno=yylineno;; a->BCU1_PROTECT=$2;}|
+TOK_BCU2_PROTECT bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->BCU2_PROTECT_lineno)parserError(_("%s already set at line %d"),"BCU2_PROTECT",a->BCU2_PROTECT_lineno);a->BCU2_PROTECT_lineno=yylineno;; a->BCU2_PROTECT=$2;}|
+TOK_BCU2_WATCHDOG bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->BCU2_WATCHDOG_lineno)parserError(_("%s already set at line %d"),"BCU2_WATCHDOG",a->BCU2_WATCHDOG_lineno);a->BCU2_WATCHDOG_lineno=yylineno;; a->BCU2_WATCHDOG=$2;}|
+TOK_PLM_FAST bool ';' { typeof($$) a =(typeof($$))(stack.top());if(a->PLM_FAST_lineno)parserError(_("%s already set at line %d"),"PLM_FAST",a->PLM_FAST_lineno);a->PLM_FAST_lineno=yylineno;; a->PLM_FAST=$2;}|
+TOK_include stringarray ';' { typeof($$) a =(typeof($$))(stack.top()); if(a->include_lineno)parserError(_("%s already set at line %d"),"include",a->include_lineno);a->include_lineno=yylineno;; a->include=*$2; delete $2; }|
+TOK_Title string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Title_lineno)parserError(_("%s already set at line %d"),"Title",a->Title_lineno);a->Title_lineno=yylineno;; a->Title=*$2; delete $2;} |
+TOK_AddInfo string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->AddInfo_lineno)parserError(_("%s already set at line %d"),"AddInfo",a->AddInfo_lineno);a->AddInfo_lineno=yylineno;; a->AddInfo=*$2; delete $2;} |
+TOK_OrderNo string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->OrderNo_lineno)parserError(_("%s already set at line %d"),"OrderNo",a->OrderNo_lineno);a->OrderNo_lineno=yylineno;; a->OrderNo=*$2; delete $2;} |
+TOK_Manufacturer string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Manufacturer_lineno)parserError(_("%s already set at line %d"),"Manufacturer",a->Manufacturer_lineno);a->Manufacturer_lineno=yylineno;; a->Manufacturer=*$2; delete $2;} |
+TOK_Category string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Category_lineno)parserError(_("%s already set at line %d"),"Category",a->Category_lineno);a->Category_lineno=yylineno;; a->Category=*$2; delete $2;} |
+TOK_Author string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Author_lineno)parserError(_("%s already set at line %d"),"Author",a->Author_lineno);a->Author_lineno=yylineno;; a->Author=*$2; delete $2;} |
+TOK_Copyright string ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Copyright_lineno)parserError(_("%s already set at line %d"),"Copyright",a->Copyright_lineno);a->Copyright_lineno=yylineno;; a->Copyright=*$2; delete $2;} |
+FunctionalBlock_struct { typeof($$) a =(typeof($$))(stack.top()); a->FunctionalBlocks.add(*$1); delete $1; }|
+TOK_Test_Addr_Count intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Test_Addr_Count_lineno)parserError(_("%s already set at line %d"),"Test_Addr_Count",a->Test_Addr_Count_lineno);a->Test_Addr_Count_lineno=yylineno;; a->Test_Addr_Count=$2;}|
+TOK_Test_Assoc_Count intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Test_Assoc_Count_lineno)parserError(_("%s already set at line %d"),"Test_Assoc_Count",a->Test_Assoc_Count_lineno);a->Test_Assoc_Count_lineno=yylineno;; a->Test_Assoc_Count=$2;}|
+PollingMaster_struct { typeof($$) a =(typeof($$))(stack.top()); a->PollingMasters.add(*$1); delete $1; }|
+PollingSlave_struct { typeof($$) a =(typeof($$))(stack.top()); a->PollingSlaves.add(*$1); delete $1; }|
+GroupObject_struct { typeof($$) a =(typeof($$))(stack.top()); a->GroupObjects.add(*$1); delete $1; }|
+Object_struct { typeof($$) a =(typeof($$))(stack.top()); a->Objects.add(*$1); delete $1; }|
+ListParameter_struct { typeof($$) a =(typeof($$))(stack.top()); a->ListParameters.add(*$1); delete $1; }|
+IntParameter_struct { typeof($$) a =(typeof($$))(stack.top()); a->IntParameters.add(*$1); delete $1; }|
+FloatParameter_struct { typeof($$) a =(typeof($$))(stack.top()); a->FloatParameters.add(*$1); delete $1; }|
+StringParameter_struct { typeof($$) a =(typeof($$))(stack.top()); a->StringParameters.add(*$1); delete $1; }|
+Debounce_struct { typeof($$) a =(typeof($$))(stack.top()); a->Debounces.add(*$1); delete $1; }|
+Timer_struct { typeof($$) a =(typeof($$))(stack.top()); a->Timers.add(*$1); delete $1; }|
+TOK_on_run ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_run_lineno)parserError(_("%s already set at line %d"),"on_run",a->on_run_lineno);a->on_run_lineno=yylineno;; a->on_run=*$2; delete $2;}|
+TOK_on_init ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_init_lineno)parserError(_("%s already set at line %d"),"on_init",a->on_init_lineno);a->on_init_lineno=yylineno;; a->on_init=*$2; delete $2;}|
+TOK_on_save ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_save_lineno)parserError(_("%s already set at line %d"),"on_save",a->on_save_lineno);a->on_save_lineno=yylineno;; a->on_save=*$2; delete $2;}|
+TOK_on_pei_init ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_pei_init_lineno)parserError(_("%s already set at line %d"),"on_pei_init",a->on_pei_init_lineno);a->on_pei_init_lineno=yylineno;; a->on_pei_init=*$2; delete $2;}|
+TOK_on_pei_message ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_pei_message_lineno)parserError(_("%s already set at line %d"),"on_pei_message",a->on_pei_message_lineno);a->on_pei_message_lineno=yylineno;; a->on_pei_message=*$2; delete $2;}|
+TOK_on_pei_cycle ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_pei_cycle_lineno)parserError(_("%s already set at line %d"),"on_pei_cycle",a->on_pei_cycle_lineno);a->on_pei_cycle_lineno=yylineno;; a->on_pei_cycle=*$2; delete $2;}|
+TOK_on_pei_user ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_pei_user_lineno)parserError(_("%s already set at line %d"),"on_pei_user",a->on_pei_user_lineno);a->on_pei_user_lineno=yylineno;; a->on_pei_user=*$2; delete $2;}|
+TOK_on_pei_rc_even ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_pei_rc_even_lineno)parserError(_("%s already set at line %d"),"on_pei_rc_even",a->on_pei_rc_even_lineno);a->on_pei_rc_even_lineno=yylineno;; a->on_pei_rc_even=*$2; delete $2;}|
+TOK_on_pei_rc_odd ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_pei_rc_odd_lineno)parserError(_("%s already set at line %d"),"on_pei_rc_odd",a->on_pei_rc_odd_lineno);a->on_pei_rc_odd_lineno=yylineno;; a->on_pei_rc_odd=*$2; delete $2;}|
+TOK_on_pei_tc ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_pei_tc_lineno)parserError(_("%s already set at line %d"),"on_pei_tc",a->on_pei_tc_lineno);a->on_pei_tc_lineno=yylineno;; a->on_pei_tc=*$2; delete $2;}|
+TOK_on_pei_tdre ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_pei_tdre_lineno)parserError(_("%s already set at line %d"),"on_pei_tdre",a->on_pei_tdre_lineno);a->on_pei_tdre_lineno=yylineno;; a->on_pei_tdre=*$2; delete $2;}|
+TOK_on_pei_sci_idle ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_pei_sci_idle_lineno)parserError(_("%s already set at line %d"),"on_pei_sci_idle",a->on_pei_sci_idle_lineno);a->on_pei_sci_idle_lineno=yylineno;; a->on_pei_sci_idle=*$2; delete $2;}|
+TOK_on_pei_spif ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_pei_spif_lineno)parserError(_("%s already set at line %d"),"on_pei_spif",a->on_pei_spif_lineno);a->on_pei_spif_lineno=yylineno;; a->on_pei_spif=*$2; delete $2;}|
+TOK_on_pei_oca ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_pei_oca_lineno)parserError(_("%s already set at line %d"),"on_pei_oca",a->on_pei_oca_lineno);a->on_pei_oca_lineno=yylineno;; a->on_pei_oca=*$2; delete $2;}|
+TOK_on_pei_ocb ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_pei_ocb_lineno)parserError(_("%s already set at line %d"),"on_pei_ocb",a->on_pei_ocb_lineno);a->on_pei_ocb_lineno=yylineno;; a->on_pei_ocb=*$2; delete $2;}|
+TOK_on_pei_ica ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_pei_ica_lineno)parserError(_("%s already set at line %d"),"on_pei_ica",a->on_pei_ica_lineno);a->on_pei_ica_lineno=yylineno;; a->on_pei_ica=*$2; delete $2;}|
+TOK_on_pei_icb ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->on_pei_icb_lineno)parserError(_("%s already set at line %d"),"on_pei_icb",a->on_pei_icb_lineno);a->on_pei_icb_lineno=yylineno;; a->on_pei_icb=*$2; delete $2;}|
+
+
+TOK_BCU ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->BCU_lineno)parserError(_("%s already set at line %d"),"BCU",a->BCU_lineno);a->BCU_lineno=yylineno;; a->BCU=Map_BCUType(*$2);delete $2;}|
+TOK_Model ident ';' { typeof($$) a =(typeof($$))(stack.top());if(a->Model_lineno)parserError(_("%s already set at line %d"),"Model",a->Model_lineno);a->Model_lineno=yylineno;; a->Model=*$2; delete $2;}|
+
+
+NEVER_OCCUR { $$; } ; Device_bodys_CI : Begin_CI Device_bodys_CI_i End_CI { $$; } ; Device_bodys_CI_i : Device_body_CI | Device_body_CI Device_bodys_CI_i; Device_body_CI :
+TOK_Keys keymaparray ';' { typeof($$) a =(typeof($$))(stack.top()); if(a->Keys_lineno)parserError(_("%s already set at line %d"),"Keys",a->Keys_lineno);a->Keys_lineno=yylineno;; a->Keys=*$2; delete $2; }|
+TOK_PhysicalAddress intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->PhysicalAddress_lineno)parserError(_("%s already set at line %d"),"PhysicalAddress",a->PhysicalAddress_lineno);a->PhysicalAddress_lineno=yylineno;; a->PhysicalAddress=$2;}|
+TOK_InstallKey intc ';' { typeof($$) a =(typeof($$))(stack.top());if(a->InstallKey_lineno)parserError(_("%s already set at line %d"),"InstallKey",a->InstallKey_lineno);a->InstallKey_lineno=yylineno;; a->InstallKey=$2;}|
+NEVER_OCCUR { $$; } ;
+file : Device_struct { parser_dev=$1; };

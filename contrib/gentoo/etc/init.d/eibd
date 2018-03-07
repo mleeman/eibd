@@ -1,0 +1,20 @@
+#!/sbin/runscript
+# Copyright 1999-2004 Gentoo Foundation
+# Distributed under the terms of the GNU General Public License v2
+
+start() {
+	echo $EIBD_OPTS
+	ebegin "Starting eibd"
+	start-stop-daemon --start --background --quiet --exec /usr/bin/eibd \
+		-- ${EIBD_OPTS}
+	eend $?
+
+}
+
+stop() {
+
+	ebegin "Stopping eibd"
+	start-stop-daemon --stop --quiet --exec /usr/sbin/eibd
+	eend $?
+
+}

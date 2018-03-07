@@ -1,0 +1,44 @@
+/*
+    BCU SDK bcu development enviroment
+    Copyright (C) 2005-2011 Martin Koegler <mkoegler@auto.tuwien.ac.at>
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
+/*MAP(0x00,PDT_CONTROL) not supported*/
+MAP(0x01,PDT_CHAR)
+MAP(0x02,PDT_UNSIGNED_CHAR)
+MAP(0x03,PDT_INT)
+MAP(0x04,PDT_UNSIGNED_INT)
+MAP(0x05,PDT_KNX_FLOAT)
+MAP(0x06,PDT_DATE)
+MAP(0x07,PDT_TIME)
+MAP(0x08,PDT_LONG)
+MAP(0x09,PDT_UNSIGNED_LONG)
+MAP(0x0A,PDT_FLOAT)
+MAP(0x0B,PDT_DOUBLE)
+MAP(0x0C,PDT_CHAR_BLOCK)
+MAP(0x0D,PDT_POLL_GROUP_SETTINGS)
+MAP(0x0E,PDT_SHORT_CHAR_BLOCK)
+MAP(0x11,PDT_GENERIC_01)
+MAP(0x12,PDT_GENERIC_02)
+MAP(0x13,PDT_GENERIC_03)
+MAP(0x14,PDT_GENERIC_04)
+MAP(0x15,PDT_GENERIC_05)
+MAP(0x16,PDT_GENERIC_06)
+MAP(0x17,PDT_GENERIC_07)
+MAP(0x18,PDT_GENERIC_08)
+MAP(0x19,PDT_GENERIC_09)
+MAP(0x1A,PDT_GENERIC_10)

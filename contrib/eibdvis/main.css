@@ -1,0 +1,20 @@
+
+body { background-color: #eeeeee; color: #000000; font-size: 1em; text-decoration: none; font-family: sans-serif;}
+
+form { display: inline; padding-left: 0.25em; padding-right: 0.25em; }
+
+h1 { text-decoration: none; font-weight: bold; font-size: 1.5em; padding: 1em; margin: 0em; }
+
+h2 { text-decoration: none; font-weight: bold; font-size: 1.2em; padding: 0em; margin: 0em; }
+
+.stats { padding-top: 0.5em; padding-bottom: 0.5em; }
+
+.dimmer { border: 1px solid #000000; width: 25em; padding: 1em; margin: 1em; }
+.switch { border: 1px solid #000000; width: 25em; padding: 1em; margin: 1em; }
+.blind  { border: 1px solid #000000; width: 25em; padding: 1em; margin: 1em; }
+.temp   { border: 1px solid #000000; width: 25em; padding: 1em; margin: 1em; }
+
+.dimmer input { width: 4em; }
+.switch input { width: 4em; }
+.blind  input { width: 4em; }
+.temp   input { width: 4em; }

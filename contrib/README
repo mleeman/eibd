@@ -1,0 +1,5 @@
+This directory contains contributed things:
+
+* swig		python bindings for eib client library (requries SWIG)
+* gentoo	files for using eibd on a gentoo distribution
+* eidbvis       an example of an eibd based visualisation (in PHP)

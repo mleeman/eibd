@@ -1,0 +1,9 @@
+BCU21_VARIANT=histack
+BCU2_VARIANT=histack
+BCU1_VARIANT=
+
+BCU21_LIST=bcu_0021 $(addprefix bcu_0021,$(BCU21_VARIANT))
+BCU2_LIST=bcu_0020 $(addprefix bcu_0020,$(BCU2_VARIANT))
+BCU1_LIST=bcu_0012 $(addprefix bcu_0012,$(BCU1_VARIANT))
+
+BCU_LIST=$(BCU2_LIST) $(BCU1_LIST) $(BCU21_LIST)

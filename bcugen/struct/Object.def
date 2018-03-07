@@ -1,0 +1,42 @@
+/*
+    BCU SDK bcu development enviroment
+    Copyright (C) 2005-2011 Martin Koegler <mkoegler@auto.tuwien.ac.at>
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
+OBJECT(Object)
+
+#if !(defined(PARSER_GEN)&& defined(READ_INPUT))
+ATTRIB_INT(ObjectIndex)
+#endif
+
+ATTRIB_IDENT(Name)
+
+ATTRIB_INT_MAP(ObjectType,Map_ObjectType)
+ATTRIB_ARRAY_OBJECT(Property)
+
+#if !defined(WRITE_OUTPUT) && !(defined(PARSER_GEN)&&defined(READ_BACK))
+ATTRIB_STRING(Title)
+ATTRIB_STRING(AddInfo)
+#endif
+
+PRIVATE_VAR(int RAccess)
+PRIVATE_VAR(int WAccess)
+PRIVATE_VAR(int PropCount)
+
+CI_OBJECT(Object)
+
+END_OBJECT

@@ -1,0 +1,39 @@
+/*
+    BCU SDK bcu development enviroment
+    Copyright (C) 2005-2011 Martin Koegler <mkoegler@auto.tuwien.ac.at>
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
+MAP( 0,UINT1)
+MAP( 1,UINT2)
+MAP( 2,UINT3)
+MAP( 3,UINT4)
+MAP( 4,UINT5)
+MAP( 5,UINT6)
+MAP( 6,UINT7)
+MAP( 7,UINT8)
+MAP( 8,UINT16)
+MAP( 9,TIME_DATE)
+MAP(10,FLOAT)
+MAP(11,DATA6)
+MAP(12,DOUBLE)
+MAP(13,DATA10)
+MAP(14,MAXDATA)
+/*MAP(15,VARDATA) not supported*/
+
+MAP(256,UINT32)
+MAP(257,UINT64)
+

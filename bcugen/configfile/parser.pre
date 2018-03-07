@@ -1,0 +1,230 @@
+%{
+/*
+    BCU SDK bcu development enviroment
+    Copyright (C) 2005-2011 Martin Koegler <mkoegler@auto.tuwien.ac.at>
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
+YYinclude "scanner.h"
+YYinclude "stack.h"
+YYinclude "classes.h"
+YYinclude "map.h"
+
+void yyerror(char*s)
+{
+  parserError("%s",s);
+}
+
+Stack<void*> stack;
+Device* parser_dev;
+
+%}
+
+%union {
+long int intval;
+const char* str;
+String* string;
+double fval;
+bool bval;
+IdentMap* map;
+IdentArray* identarray;
+IdentArray* stringarray;
+IntArray* intarray;
+KeyMapArray* keymaparray;
+Expr* expr;
+#include "parser_genunion.h"
+#include "Objects.lst"
+};
+
+%error-verbose
+%start file;
+%token<intval> INT
+%token<str> IDENT STRING
+%token<fval> FLOAT
+%token  TRUE FALSE;
+%token NEVER_OCCUR
+%token T_OR T_AND T_EQ T_NE T_GE T_LE T_RSHIFT T_LSHIFT T_IN T_CI
+
+%type<intval> intc
+%type<fval> floatc
+%type<map> identmap identmap1
+%type<identarray> identarray identarray1
+%type<stringarray> stringarray stringarray1
+%type<intarray> intarray intarray1
+%type<keymaparray> keymaparray keymaparray1
+%type<bval> bool;
+%type<string> string ident
+%type<expr> expr intp stringp floatp intb stringb floatb listb
+
+%left NEG '!' '~'
+%left '*' '/' '%'
+%left '+' '-'
+%left T_LSHIFT T_RSHIFT
+%left '<' '>' T_GE T_LE
+%left T_NE T_EQ
+%left '&'
+%left '^'
+%left '|'
+%left T_AND
+%left T_OR
+
+#include "parser_gentoken.h"
+#include "Objects.lst"
+
+%%
+
+intc : INT 
+    | '-' intc %prec NEG { $$=-$2; }
+    | '(' intc ')' { $$= $2; }
+    | '!' intc { $$=!$2; }
+    | '~' intc { $$=~$2; }
+    | intc '*' intc { $$=$1*$3; }
+    | intc '/' intc { $$=$1/$3; }
+    | intc '%' intc { $$=$1%$3; }
+    | intc '+' intc { $$=$1+$3; }
+    | intc '-' intc { $$=$1-$3; }
+    | intc T_LSHIFT intc { $$=$1<<$3; }
+    | intc T_RSHIFT intc { $$=$1>>$3; }
+    | intc '<' intc { $$=$1<$3; }
+    | intc T_LE intc { $$=$1<=$3; }
+    | intc '>' intc { $$=$1>$3; }
+    | intc T_GE intc { $$=$1>=$3; }
+    | intc T_EQ intc { $$=$1==$3; }
+    | intc T_NE intc { $$=$1!=$3; }
+    | floatc '<' floatc { $$=$1<$3; }
+    | floatc T_LE floatc { $$=$1<=$3; }
+    | floatc '>' floatc { $$=$1>$3; }
+    | floatc T_GE floatc { $$=$1>=$3; }
+    | floatc T_EQ floatc { $$=$1==$3; }
+    | floatc T_NE floatc { $$=$1!=$3; }
+    | intc '&' intc { $$=$1&$3; }
+    | intc '^' intc { $$=$1^$3; }
+    | intc '|' intc { $$=$1|$3; }
+    | intc T_AND intc { $$=$1&&$3; }
+    | intc T_OR intc { $$=$1||$3; }
+    | intc '?' intc ':' intc { $$=$1?$3:$5; };
+
+floatc : FLOAT 
+    | intc { $$=$1; } 
+    | '-' floatc %prec NEG { $$=-$2; }
+    | '(' floatc ')' { $$= $2; }
+    | floatc '*' floatc { $$=$1*$3; }
+    | floatc '/' floatc { $$=$1/$3; }
+    | floatc '+' floatc { $$=$1+$3; }
+    | floatc '-' floatc { $$=$1-$3; }
+    | intc '?' floatc ':' floatc { $$=$1?$3:$5; };
+
+intp : intc { $$=new Expr; $$->i=$1; $$->Type=Expr::E_INT; } 
+  | '(' intp ')' { $$=$2; }
+  | IDENT { $$=new Expr; $$->s=$1;$$->Type=Expr::E_PAR; }
+  | '-' intp %prec NEG { $$=new Expr;$$->op1=$2;$$->Type=Expr::E_NEG;}
+  | intp '+' intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_PLUS;}
+  | intp '-' intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_MINUS;}
+  | intp '/' intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_DIV;}
+  | intp '%' intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_MOD;}
+  | intp '*' intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_MUL;}
+  | bool {  $$=new Expr; $$->i=$1; $$->Type=Expr::E_INT; } 
+ 
+floatp : floatc { $$=new Expr; $$->f=$1; $$->Type=Expr::E_FLOAT; } 
+  | '(' floatp ')' { $$=$2; }
+  | IDENT { $$=new Expr; $$->s=$1;$$->Type=Expr::E_PAR; }
+  | '-' floatp %prec NEG { $$=new Expr;$$->op1=$2;$$->Type=Expr::E_NEG;}
+  | floatp '+' floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_PLUS;}
+  | floatp '-' floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_MINUS;}
+  | floatp '/' floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_DIV;}
+  | floatp '*' floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_MUL;}
+  | intp ; 
+ 
+stringp : string { $$=new Expr; $$->s=*$1; $$->Type=Expr::E_STRING; delete $1;}
+  | '(' stringp ')' { $$=$2; }
+  | IDENT { $$=new Expr; $$->s=$1;$$->Type=Expr::E_PAR; };
+
+stringb : stringp T_EQ stringp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_EQ;}
+  | stringp T_NE stringp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_NE;}
+  | stringp T_LE stringp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_LE;}
+  | stringp T_GE stringp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_GE;}
+  | stringp '<' stringp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_LT;}
+  | stringp '>' stringp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_GT;};
+
+floatb : floatp T_EQ floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_EQ;}
+  | floatp T_NE floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_NE;}
+  | floatp T_LE floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_LE;}
+  | floatp T_GE floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_GE;}
+  | floatp '<' floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_LT;}
+  | floatp '>' floatp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_GT;};
+
+intb : intp T_EQ intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_EQ;}
+  | intp T_NE intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_NE;}
+  | intp T_LE intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_LE;}
+  | intp T_GE intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_GE;}
+  | intp '<' intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_LT;}
+  | intp '>' intp { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_GT;}
+  | intp { $$=new Expr;$$->op1=$1;$$->Type=Expr::E_NOTNULL;};
+
+listb : ident T_IN '(' identarray1 ')' { $$=new Expr; $$->s=*$1;delete $1;$$->id=*$4;delete $4;$$->Type=Expr::E_IN; }
+
+expr : expr T_AND expr { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_AND;}
+   | '!' expr { $$=new Expr;$$->op1=$2;$$->Type=Expr::E_NOT;}
+   | '(' expr ')' { $$=$2; }
+   | expr T_OR expr { $$=new Expr;$$->op1=$1;$$->op2=$3;$$->Type=Expr::E_OR;}
+   | intb | floatb | listb | stringb ;
+
+string : STRING {$$=unescapeString($1); } | string STRING { String* n=unescapeString($2); (*$1)+=*n;delete n; } ;
+ident : IDENT {$$=new String($1); };
+bool : TRUE { $$=1; } | FALSE { $$=0; };
+
+identmap1 : { $$=new IdentMap; } | identmap1 ident '=' string ';' {Map m;m.Name=*$2; m.Value=*$4;delete $2; delete $4; $1->add(m); $$=$1; } 
+
+identmap : '{' identmap1 '}' { $$=$2;} ;
+
+keymaparray1 : intc '=' intc { $$=new KeyMapArray; $$->add(KeyMap($1,$3)); } | keymaparray1 ',' intc '=' intc {$1->add(KeyMap($3,$5)); $$=$1; } 
+
+intarray1 : intc { $$=new IntArray; $$->add($1); } | intarray1 ',' intc {$1->add($3); $$=$1; } 
+
+identarray1 : ident { $$=new IdentArray; $$->add(*$1); delete $1; } | identarray1 ',' ident {$1->add(*$3); delete $3; $$=$1; } 
+
+stringarray1 : string { $$=new StringArray; $$->add(*$1); delete $1; } | stringarray1 ',' ident {$1->add(*$3); delete $3; $$=$1; } 
+
+ebs : ',' | ;
+
+intarray : '{' '}' {$$=new IntArray; }
+	| '{' intarray1 ebs '}' { $$=$2;} ;
+
+keymaparray : '{' '}' {$$=new KeyMapArray; }
+	| '{' keymaparray1 ebs '}' { $$=$2;} ;
+
+identarray : '{' '}' {$$=new IdentArray; }
+	| '{' identarray1 ebs '}' { $$=$2;} ;
+
+stringarray : '{' '}' {$$=new StringArray; }
+	| '{' stringarray1 ebs '}' { $$=$2;} ;
+
+#ifdef READ_INPUT
+Begin_CI : T_CI '{' ;
+End_CI : '}' ';' ;
+Empty_CI : T_CI '{' '}' ';'
+#else
+Begin_CI : ;
+End_CI : ;
+Empty_CI : NEVER_OCCUR ;
+#endif
+
+#define PARSER_GEN
+#include "parser_objectdesc.h"
+#include "Objects.lst"
+
+
+file : Device_struct { parser_dev=$1; };
