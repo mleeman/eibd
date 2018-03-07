@@ -5,7 +5,6 @@ include /usr/share/cdbs/1/class/autotools.mk
 include /usr/share/cdbs/1/rules/utils.mk
 
 DEB_CONFIGURE_EXTRA_FLAGS := \
-	--enable-java \
 	--enable-ft12 \
 	--enable-pei16 \
 	--enable-tpuart \
@@ -15,7 +14,8 @@ DEB_CONFIGURE_EXTRA_FLAGS := \
 	--enable-eibnetipserver \
 	--enable-groupcache \
 	--enable-usb \
-	--enable-eibnetiptunnel
+	--enable-eibnetiptunnel \
+  --enable-onlyeibd
 
 DEB_DH_STRIP_ARGS := -Xusr/lib/bcusdk/lib -Xusr/lib64/bcusdk/lib
 DEB_DH_INSTALL_SOURCEDIR := debian/tmp
