@@ -1,7 +1,7 @@
 /*
     knxtool - multi function eibd client
     Copyright (C) 2005-2011 Martin Koegler <mkoegler@auto.tuwien.ac.at>
-    
+
     First version by Jean-Francois Meessen <jef2000@ouaye.net>
     More applets ported by Marc Leeman
 
@@ -209,9 +209,9 @@ main (int ac, char *ag[])
 	      if (len == 2)
 		{
 		  if (buf[1] & 0x3F)
-		    printf (ag[3]);
+		    printf ("%s", ag[3]);
 		  else if (ac == 5)
-		    printf (ag[4]);
+		    printf ("%s", ag[4]);
 		}
 	      else
 		printf ("ERR");
