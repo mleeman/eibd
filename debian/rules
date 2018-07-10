@@ -13,7 +13,6 @@ DEB_CONFIGURE_EXTRA_FLAGS := \
 	--enable-eibnetip \
 	--enable-eibnetipserver \
 	--enable-groupcache \
-	--enable-usb \
 	--enable-eibnetiptunnel \
   --enable-onlyeibd
 

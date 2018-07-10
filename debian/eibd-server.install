@@ -3,4 +3,4 @@ usr/bin/bcuaddrtab
 usr/bin/bcuread
 usr/bin/eibnetdescribe
 usr/bin/eibnetsearch
-usr/bin/findknxusb
+# usr/bin/findknxusb
