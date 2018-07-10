@@ -1,3 +1,12 @@
+bcusdk (0.0.5.1) unstable; urgency=medium
+
+  * knxtool: correct print with newer compilers
+  * debian: compile without java cruft and m68x compiler
+  * debian: remove unneeded dependencies
+  * debian: add default/init files
+
+ -- Marc Leeman <marc.leeman@barco.com>  Tue, 10 Jul 2018 20:30:27 +0200
+
 bcusdk (0.0.5) unstable; urgency=low
 
   *  Next release
