@@ -1,0 +1,63 @@
+#!/bin/sh
+
+set -e
+
+function_adduser () {
+  _USERNAME=$1
+  _DIRECTORY=$2
+  _DESCRIPTION=$3
+
+  ret=false
+  getent passwd ${_USERNAME} > /dev/null 2>&1 && ret=true
+
+  if ! ${ret}
+  then
+    adduser --system --home ${_DIRECTORY} --no-create-home --quiet --gecos 'KNX Automation' --group ${_USERNAME}
+  else
+    echo "${_DESCRIPTION} (${_USERNAME}) already exists, doing nothing."
+  fi
+
+  [ -d "${_DIRECTORY=}" ] ||  mkdir -p "${_DIRECTORY}"
+  chown ${_USERNAME}:nogroup ${_DIRECTORY} -R
+}
+
+function_addgroup () {
+  _GROUPNAME=$1
+  ret=false
+  getent group ${_GROUPNAME} > /dev/null 2>&1 && ret=true
+
+  if ! ${ret}
+  then
+    addgroup --system ${_GROUPNAME}
+  else
+    echo "Group (${_GROUPNAME}) already exists, doing nothing."
+  fi
+}
+
+# Install configuration
+case "$1" in
+  install)
+    _USERNAME="knx"
+    _DIRECTORY="/var/run/knx"
+    _DESCRIPTION="KNX Automation"
+
+    _LOGDIR="/var/log/knx"
+
+    function_adduser "${_USERNAME}" "${_DIRECTORY}" "${_DESCRIPTION}"
+
+    usermod -a -G audio,dialout,video ${_USERNAME}
+      ;;
+
+  upgrade|abort-upgrade)
+      ;;
+
+  *)
+      echo "preinst called with unknown argument \`$1'" >&2
+      exit 0
+      ;;
+esac
+
+#DEBHELPER#
+
+exit 0
+

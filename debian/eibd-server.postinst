@@ -4,10 +4,11 @@ set -e
 
 case "$1" in
   configure)
-    if [ -d /var/log/knx/ ]; then
-      chmod a+rX -R /var/log/knx/
-      chown knx -R /var/log/knx/
-    fi
+    _LOGDIR="/var/log/knx"
+
+    [ -d "${_LOGDIR}" ] || mkdir -p "${_LOGDIR}"
+    chown ${_USERNAME}:nogroup ${_LOGDIR} -R
+
     # that's it right now.
   ;;
 
