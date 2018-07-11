@@ -1,0 +1,12 @@
+[Unit]
+Description=EIBD Server Daemon
+After=network.target
+
+[Service]
+User=knx
+Type=forking
+ExecStart=/usr/bin/eibd --daemon --pid-file /var/run/knx/eibd-server.pid -D -T -S -i ipt:192.168.178.31
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
