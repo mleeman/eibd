@@ -1,9 +1,18 @@
 Source: bcusdk
 Section: devel
-Priority: extra
+Priority: optional
 Maintainer: Martin Koegler <mkoegler@auto.tuwien.ac.at>
-Build-Depends: debhelper (>= 10), cdbs, bzip2, bison, flex, libxml2-dev (>= 2.6.16), libpthsem-dev (>=2.0.8), indent, licensecheck
-Standards-Version: 3.9.8
+Uploaders: Marc Leeman <m.leeman@televic.com>,
+Build-Depends: debhelper (>= 10),
+                cdbs,
+                bzip2,
+                bison,
+                flex,
+                libxml2-dev (>= 2.6.16),
+                libpthsem-dev (>= 2.0.8~),
+                indent,
+                licensecheck
+Standards-Version: 4.3.0
 Homepage: http://www.auto.tuwien.ac.at/~mkoegler/index.php/bcusdk
 Vcs-Git: http://www.auto.tuwien.ac.at/~mkoegler/git/bcusdk.git
 
@@ -11,7 +20,7 @@ Package: eibd-server
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: eibd-clients
-Description: eibd server
+Description: KNX/EIB home automation server
  eibd is a daemon which supports connection to an EIB (KNX) network over various
  interfaces. It provides its services over TCP/IP or Unix domain sockets.
  It can also act as an EIBnet/IP server.
@@ -21,7 +30,7 @@ Package: eibd-clients
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Suggests: eibd-server
-Description: eibd clients
+Description: KNX/EIB home automation clients
  Simple example programs to perform management tasks on a EIB system.
 
 Package: libeibclient0
