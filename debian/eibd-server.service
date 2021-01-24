@@ -5,6 +5,8 @@ After=network.target
 [Service]
 User=knx
 Type=forking
+ExecStartPre=-+/bin/mkdir -p /var/log/knx/
+ExecStartPre=-+/bin/chown -R knx:knx /var/log/knx/
 ExecStart=/usr/bin/eibd --daemon --pid-file /var/run/knx/eibd-server.pid -D -T -S -i ipt:192.168.178.31
 Restart=on-failure
 
