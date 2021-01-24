@@ -2,21 +2,22 @@
 set -e
 
 case "${1}" in
-  configure)
+  install|upgrade)
     getent passwd knx || adduser --system --no-create-home --home /nonexistent knx || true
     getent group knx || addgroup --system knx || true
 
     ;;
 
-  abort-upgrade|abort-remove|abort-deconfigure)
+  abort-upgrade)
 
     ;;
 
   *)
-    echo "postinst called with unknown argument \`${1}'" >&2
+    echo "preinst called with unknown argument \`${1}'" >&2
     exit 1
     ;;
 esac
 
 #DEBHELPER#
 
+exit 0
