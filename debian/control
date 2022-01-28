@@ -18,7 +18,9 @@ Vcs-Git: http://www.auto.tuwien.ac.at/~mkoegler/git/bcusdk.git
 
 Package: eibd-server
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends},
+          ${misc:Depends},
+          adduser
 Suggests: eibd-clients
 Description: KNX/EIB home automation server
  eibd is a daemon which supports connection to an EIB (KNX) network over various
