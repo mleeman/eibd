@@ -2,10 +2,36 @@
 
 set -e
 
+function_adduser () {
+  _USERNAME=$1
+  _DIRECTORY=$2
+  _DESCRIPTION=$3
+
+  ret=false
+  getent passwd ${_USERNAME} > /dev/null 2>&1 && ret=true
+
+  if ! ${ret}
+  then
+    adduser --system --home ${_DIRECTORY} --no-create-home --quiet --gecos "${_DESCRIPTION}" --group ${_USERNAME}
+  else
+    echo "${_DESCRIPTION} (${_USERNAME}) already exists, doing nothing."
+  fi
+
+  [ -d "${_DIRECTORY=}" ] ||  mkdir -p "${_DIRECTORY}"
+  chown ${_USERNAME}:nogroup ${_DIRECTORY} -R
+}
+
 case "${1}" in
   configure)
-    _LOGDIR="/var/log/knx"
     _USERNAME="knx"
+    _DIRECTORY="/var/run/knx"
+    _DESCRIPTION="KNX Automation"
+
+    _LOGDIR="/var/log/knx"
+
+    function_adduser "${_USERNAME}" "${_DIRECTORY}" "${_DESCRIPTION}"
+
+    usermod -a -G audio,dialout,video ${_USERNAME}
 
     [ -d "${_LOGDIR}" ] || mkdir -p "${_LOGDIR}"
     chown ${_USERNAME}:nogroup ${_LOGDIR}
@@ -23,3 +49,5 @@ case "${1}" in
 esac
 
 #DEBHELPER#
+
+exit 0
