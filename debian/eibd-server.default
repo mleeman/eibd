@@ -3,7 +3,4 @@ START_EIBD=YES
 
 # Options where EIBD should connect to
 # -i usb: for usb or -i ip: for EIBnet/IP routing
-# REMOTE_ARGS="-D -T -S -i ipt:192.168.123.124"
-# REMOTE_ARGS="-D -T -S -i ipt:192.168.178.27"
-# REMOTE_ARGS="-D -T -S -i ipt:192.168.123.124"
 REMOTE_ARGS="-D -T -S -i ipt:192.168.178.31"
