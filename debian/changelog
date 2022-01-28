@@ -1,3 +1,13 @@
+bcusdk (0.0.5.2~televic11+3) bullseye-televic-unstable; urgency=medium
+
+  * debian: bump dh support
+  * debian: bump dh support
+  * debian: update dh support
+  * debian: support multi-arch
+  * debian: skip-systemd-native-flag-missing-pre-depends
+
+ -- Marc Leeman <m.leeman@televic.com>  Fri, 28 Jan 2022 13:27:28 +0100
+
 bcusdk (0.0.5.2~televic11+2) bullseye-televic-unstable; urgency=medium
 
   * debian: update changelog
