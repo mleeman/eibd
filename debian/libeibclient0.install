@@ -1,1 +1,1 @@
-usr/lib/libeibclient.so.*
+usr/lib/*/libeibclient.so.*

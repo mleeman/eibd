@@ -1,7 +1,7 @@
 usr/include
-usr/lib/libeibclient.la
-usr/lib/libeibclient.a
-usr/lib/libeibclient.so
+usr/lib/*/libeibclient.la
+usr/lib/*/libeibclient.a
+usr/lib/*/libeibclient.so
 usr/share/bcusdk/eibclient.php
 usr/share/bcusdk/EIBConnection.cs
 usr/share/bcusdk/EIBConnection.pm
