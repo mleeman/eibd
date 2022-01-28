@@ -17,6 +17,7 @@ Vcs-Git: http://www.auto.tuwien.ac.at/~mkoegler/git/bcusdk.git
 
 Package: eibd-server
 Architecture: any
+Pre-Depends: ${misc:Pre-Depends}
 Depends: ${shlibs:Depends},
           ${misc:Depends},
           adduser
