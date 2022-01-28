@@ -3,8 +3,7 @@ Section: devel
 Priority: optional
 Maintainer: Martin Koegler <mkoegler@auto.tuwien.ac.at>
 Uploaders: Marc Leeman <m.leeman@televic.com>,
-Build-Depends: debhelper (>= 10),
-                cdbs,
+Build-Depends: debhelper-compat (= 13),
                 bzip2,
                 bison,
                 flex,
