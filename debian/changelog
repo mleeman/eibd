@@ -1,4 +1,4 @@
-bcusdk (0.0.5.2~televic11+3) bullseye-televic-unstable; urgency=medium
+bcusdk (0.0.5.3~bpo11+1) bullseye-backports; urgency=medium
 
   * debian: bump dh support
   * debian: bump dh support
@@ -6,7 +6,7 @@ bcusdk (0.0.5.2~televic11+3) bullseye-televic-unstable; urgency=medium
   * debian: support multi-arch
   * debian: skip-systemd-native-flag-missing-pre-depends
 
- -- Marc Leeman <m.leeman@televic.com>  Fri, 28 Jan 2022 13:27:28 +0100
+ -- Marc Leeman <m.leeman@televic.com>  Wed, 20 Apr 2022 14:43:33 +0200
 
 bcusdk (0.0.5.2~televic11+2) bullseye-televic-unstable; urgency=medium
 
